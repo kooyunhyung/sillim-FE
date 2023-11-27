@@ -2,6 +2,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'DetailPage.dart';
+
 final dummyItems = [
   'https://www.housingherald.co.kr/news/photo/202109/42098_18894_922.jpg',
   'https://img.seoul.co.kr/img/upload/2023/08/28/SSC_20230828180347_V.jpg',
@@ -170,7 +172,7 @@ class Page1 extends StatelessWidget {
       children: [
         _buildTop(),
         _buildMiddle(context),
-        _buildBottom(),
+        _buildBottom(context),
       ],
     );
   }
@@ -261,11 +263,18 @@ class Page1 extends StatelessWidget {
   }
 
   // 하단
-  Widget _buildBottom() {
-    final items = List.generate(10, (i) {
+  Widget _buildBottom(context) {
+    final items = List.generate(5, (i) {
       return ListTile(
         leading: Icon(Icons.notifications_none),
         title: Text('[이벤트] 이것은 공지사항입니다'),
+        onTap: (){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => DetailPage())
+          );
+        },
       );
     });
 
