@@ -34,9 +34,9 @@ class CommonAPI {
   }) async {
     final response =
         await Http.get(Uri.parse(createUri(path, params!)), headers: {
-      if (this.headers != null) ...await this.headers,
-      if (this.defaultHeader != null) ...?this.defaultHeader,
-      if (headers != null) ...headers
+      //if (this.headers != null) ...await this.headers,
+      //if (this.defaultHeader != null) ...?this.defaultHeader,
+      //if (headers != null) ...headers
     });
     if (response.statusCode != 200) {
       print(Uri.parse(createUri(path, params)));
@@ -149,9 +149,9 @@ class CommonAPI {
     final response = await Http.delete(Uri.parse(createUri(path, params!)),
         body: body != null ? jsonEncode(body) : null,
         headers: {
-          if (this.headers != null) ...await this.headers,
-          if (this.defaultHeader != null) ...?this.defaultHeader,
-          if (headers != null) ...headers
+          //if (this.headers != null) ...await this.headers,
+          //if (this.defaultHeader != null) ...?this.defaultHeader,
+          //if (headers != null) ...headers
         });
     if (response.statusCode != 200) {
       throw Exception(['알 수 없는 에러가 발생했습니다.']);

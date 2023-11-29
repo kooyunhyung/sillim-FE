@@ -10,57 +10,42 @@ class UserAPI extends CommonAPI {
   Future<Map<String, dynamic>> createNotice(
       {required String title,
       required String creator,
-      required String content
-      }) async {
+      required String content}) async {
     final response = await post('sillim/notice', body: {
       "sn_title": title,
       "sn_creator": creator,
       "sn_content": content,
     }, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
-    return {"code": result['code']};
+    return result;
   }
 
-  Future<dynamic> readUser() async {
-    final response = await get('groad/user/', headers: {}, params: {});
+  Future<dynamic> readNotice() async {
+    final response = await get('sillim/notice', headers: {}, params: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
   }
 
   //계정 수정
-  Future<Map<String, dynamic>> updateUser(
+  Future<Map<String, dynamic>> updateNotice(
       {required pk,
-      required id,
-      required pw,
-      required name,
-      required gender,
-      required birth,
-      required email,
-      required phone,
-      required point,
-      required step,
-      required profileImage}) async {
-    final response = await put('groad/user/$pk/', body: {
-      "gu_id": id,
-      "gu_pw": pw,
-      "gu_name": name,
-      "gu_gender": gender,
-      "gu_birth_date": birth,
-      "gu_email": email,
-      "gu_phone_number": phone,
-      "gu_point_number": point,
-      "gu_step_number": step,
-      "gu_profile_image": profileImage
+      required String title,
+      required String creator,
+      required String content}) async {
+    final response = await post('sillim/notice/$pk', body: {
+      "sn_title": title,
+      "sn_creator": creator,
+      "sn_content": content,
     }, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
-    return {"code": result['code']};
+    return result;
   }
 
   // 계정 삭제
-  Future<Map<String, dynamic>> deleteUser({required pk}) async {
+  Future<Map<String, dynamic>> deleteNotice({required pk}) async {
     final request =
-        await delete('groad/user/$pk', body: {}, params: {}, headers: {});
+        await delete('sillim/notice/$pk', body: {}, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(request.bodyBytes));
-    return {"code": result['code']};
+    return result;
   }
 }

@@ -7,7 +7,7 @@ class APIConfig {
   APIConfig(this.host, {required this.version});
 }
 
-final host = APIConfig('https://fff1-122-45-204-107.ngrok-free.app', version: 1);
+final host = APIConfig('https://3722-122-45-204-107.ngrok-free.app', version: 1);
 
 
 String getQueryString(Map params,

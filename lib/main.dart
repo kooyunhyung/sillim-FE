@@ -1,7 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/api/user_api.dart';
 
+import 'CreatePage.dart';
 import 'DetailPage.dart';
 
 final dummyItems = [
@@ -173,6 +175,7 @@ class Page1 extends StatelessWidget {
         _buildTop(),
         _buildMiddle(context),
         _buildBottom(context),
+        _buildButton(context)
       ],
     );
   }
@@ -264,25 +267,82 @@ class Page1 extends StatelessWidget {
 
   // 하단
   Widget _buildBottom(context) {
-    final items = List.generate(5, (i) {
-      return ListTile(
-        leading: Icon(Icons.notifications_none),
-        title: Text('[이벤트] 이것은 공지사항입니다'),
-        onTap: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => DetailPage())
-          );
-        },
-      );
-    });
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
 
-    return ListView(
-      physics: NeverScrollableScrollPhysics(), //이 리스트의 스크롤 동작 금지
-      shrinkWrap: true, //이 리스트가 다른 스크롤 객체 안에 있다면 true로 설정해야 함
-      children: items,
+    return FutureBuilder(
+      future: _fetchNotice(context),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData == false) {
+          return Container(
+              child: Center(
+                  child: Container(
+                      width: 50,
+                      height: 50,
+                      child: CircularProgressIndicator())));
+        } else if (snapshot.hasError) {
+          return Container(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(fontSize: 15),
+              ),
+            ),
+          );
+        } else {
+          return Container(
+            width: width,
+            height: height * 0.4,
+            child: ListView(
+              physics: ClampingScrollPhysics(),
+              children: [
+                ...List.generate(
+                    snapshot.data.length,
+                    (index) => ListTile(
+                          leading: Icon(Icons.notifications_none),
+                          title: Text('${snapshot.data[index]['sn_title']}'),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => DetailPage(
+                                        pk: snapshot.data[index]['sn_id'],
+                                        title: snapshot.data[index]['sn_title'],
+                                        creator: snapshot.data[index]
+                                            ['sn_creator'],
+                                        content: snapshot.data[index]
+                                            ['sn_content'])));
+                          },
+                        ))
+              ],
+            ),
+          );
+        }
+      },
     );
+  }
+
+  Widget _buildButton(context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+            onPressed: ()  {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CreatePage()));
+           },
+           child: Text('글 작성')),
+      ],
+    );
+  }
+
+  Future<dynamic> _fetchNotice(context) async {
+    dynamic noticeList = await UserAPI(context: context).readNotice();
+    print(noticeList);
+    return noticeList;
   }
 }
 
