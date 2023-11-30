@@ -80,8 +80,15 @@ class contents extends StatefulWidget {
 }
 
 class _contentsState extends State<contents> {
-  TextEditingController title = TextEditingController();
-  TextEditingController content = TextEditingController();
+  TextEditingController titleController = TextEditingController();
+  TextEditingController contentController = TextEditingController();
+
+  @override
+  void initState() {
+    titleController.text = widget.title;
+    contentController.text = widget.content;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,8 +98,7 @@ class _contentsState extends State<contents> {
         children: [
           _title(widget.width, widget.height),
           _creator(widget.width, widget.height, widget.creator),
-          _content(
-              widget.width, widget.height),
+          _content(widget.width, widget.height),
           _button(widget.pk)
         ],
       ),
@@ -118,9 +124,8 @@ class _contentsState extends State<contents> {
             decoration: BoxDecoration(
                 border: Border.all(color: Colors.blue, width: 5),
                 borderRadius: BorderRadius.circular(10)),
-            child: TextFormField(
-              initialValue: widget.title,
-              controller: title,
+            child: TextField(
+              controller: titleController,
               keyboardType: TextInputType.text,
               decoration: InputDecoration(border: InputBorder.none),
             ),
@@ -162,9 +167,8 @@ class _contentsState extends State<contents> {
       decoration: BoxDecoration(
           border: Border.all(color: Colors.blue, width: 5),
           borderRadius: BorderRadius.circular(10)),
-      child: TextFormField(
-        initialValue: widget.content,
-        controller: content,
+      child: TextField(
+        controller: contentController,
         keyboardType: TextInputType.text,
         decoration: InputDecoration(border: InputBorder.none),
       ),
@@ -179,9 +183,9 @@ class _contentsState extends State<contents> {
             onPressed: () async {
               final response = await UserAPI(context: context).updateNotice(
                   pk: pk,
-                  title: title.text,
+                  title: titleController.text,
                   creator: widget.creator,
-                  content: content.text);
+                  content: contentController.text);
 
               if (response['statusCode'] == 200) {
                 print(response['statusCode']);
