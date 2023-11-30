@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/api/user_api.dart';
 
-import 'CreatePage.dart';
-import 'DetailPage.dart';
+import 'page/notice/CreatePage.dart';
+import 'page/notice/DetailPage.dart';
 
 final dummyItems = [
   'https://www.housingherald.co.kr/news/photo/202109/42098_18894_922.jpg',
@@ -39,36 +39,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var _index = 0; //페이지 인덱스 0,1,2
-  int _selectedIndex = 0; // Drawer 인덱스 0,1,2
-  var _pages = [
-    Page1(), // home
-    Page2(), // 전체글
-    Page3(), // 인기글
-    //Page4(),      // 즐겨찾기
-    //Page5(),      // 전체공지
-  ];
-
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Home',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 1: Business',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 2: School',
-      style: optionStyle,
-    ),
-  ];
+  int _drawerIndex = 0; // Drawer 인덱스 0,1,2
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      _drawerIndex = index;
     });
   }
 
@@ -89,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 )),
             ListTile(
               title: const Text('Home'),
-              selected: _selectedIndex == 0,
+              selected: _drawerIndex == 0,
               onTap: () {
                 _onItemTapped(0);
                 Navigator.pop(context);
@@ -97,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               title: const Text('Business'),
-              selected: _selectedIndex == 1,
+              selected: _drawerIndex == 1,
               onTap: () {
                 _onItemTapped(1);
                 Navigator.pop(context);
@@ -105,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               title: const Text('School'),
-              selected: _selectedIndex == 2,
+              selected: _drawerIndex == 2,
               onTap: () {
                 _onItemTapped(2);
                 Navigator.pop(context);
@@ -142,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
         centerTitle: true, //제목을 가운데로
       ),
-      body: _pages[_index],
+      body: frame(),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
           setState(() {
@@ -165,18 +140,28 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class Page1 extends StatelessWidget {
-  const Page1({Key? key}) : super(key: key);
+class frame extends StatefulWidget {
+  const frame({Key? key}) : super(key: key);
+
+  @override
+  _frameState createState() => _frameState();
+}
+
+class _frameState extends State<frame> {
+
+  var _index = 0; //페이지 인덱스 0,1,2
 
   @override
   Widget build(BuildContext context) {
+    var _pages = [
+      BoardPage(), // 전체글
+      //PopularBoardPage(), // 인기글
+      //BookMarkedPage(), // 즐겨찬기
+      NoticePage() // 전체공지
+    ];
+
     return ListView(
-      children: [
-        _buildTop(),
-        _buildMiddle(context),
-        _buildBottom(context),
-        _buildButton(context)
-      ],
+      children: [_buildTop(), _buildMiddle(context), _pages[_index]],
     );
   }
 
@@ -216,7 +201,9 @@ class Page1 extends StatelessWidget {
             children: [
               InkWell(
                 onTap: () {
-                  print('클릭');
+                  setState(() {
+                    _index = 0;
+                  });
                 },
                 child: Text(
                   '전체글',
@@ -225,7 +212,9 @@ class Page1 extends StatelessWidget {
               ),
               InkWell(
                 onTap: () {
-                  print('클릭');
+                  setState(() {
+                    _index = 1;
+                  });
                 },
                 child: Text(
                   '인기글',
@@ -234,7 +223,9 @@ class Page1 extends StatelessWidget {
               ),
               InkWell(
                 onTap: () {
-                  print('클릭');
+                  setState(() {
+                    _index = 2;
+                  });
                 },
                 child: Text(
                   '즐겨찾기',
@@ -243,7 +234,9 @@ class Page1 extends StatelessWidget {
               ),
               InkWell(
                 onTap: () {
-                  print('클릭');
+                  setState(() {
+                    _index = 3;
+                  });
                 },
                 child: Text(
                   '전체공지',
@@ -264,6 +257,18 @@ class Page1 extends StatelessWidget {
       ),
     );
   }
+}
+
+// 전체글
+class BoardPage extends StatelessWidget {
+  const BoardPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [_buildBottom(context), _buildButton(context)],
+    );
+  }
 
   // 하단
   Widget _buildBottom(context) {
@@ -271,7 +276,7 @@ class Page1 extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
 
     return FutureBuilder(
-      future: _fetchNotice(context),
+      future: _fetchBoards(context),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData == false) {
           return Container(
@@ -301,18 +306,18 @@ class Page1 extends StatelessWidget {
                     snapshot.data.length,
                     (index) => ListTile(
                           leading: Icon(Icons.notifications_none),
-                          title: Text('${snapshot.data[index]['sn_title']}'),
+                          title: Text('${snapshot.data[index]['sb_title']}'),
                           onTap: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => DetailPage(
-                                        pk: snapshot.data[index]['sn_id'],
-                                        title: snapshot.data[index]['sn_title'],
+                                        pk: snapshot.data[index]['sb_id'],
+                                        title: snapshot.data[index]['sb_title'],
                                         creator: snapshot.data[index]
-                                            ['sn_creator'],
+                                            ['sb_creator'],
                                         content: snapshot.data[index]
-                                            ['sn_content'])));
+                                            ['sb_content'])));
                           },
                         ))
               ],
@@ -328,48 +333,136 @@ class Page1 extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
-            onPressed: ()  {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => CreatePage()));
-           },
-           child: Text('글 작성')),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CreatePage()));
+            },
+            child: Text('게시글 작성')),
       ],
     );
   }
 
-  Future<dynamic> _fetchNotice(context) async {
-    dynamic noticeList = await UserAPI(context: context).readNotice();
+  Future<dynamic> _fetchBoards(context) async {
+    dynamic boardList = await UserAPI(context: context).readBoards();
+    print(boardList);
+    return boardList;
+  }
+}
+
+// class PopularBoardPage extends StatelessWidget {
+//   const PopularBoardPage({Key? key}) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//       child: Text(
+//         '이용 서비스',
+//         style: TextStyle(fontSize: 40),
+//       ),
+//     );
+//   }
+// }
+
+// class BookMarkedPage extends StatelessWidget {
+//   const BookMarkedPage({Key? key}) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//       child: Text(
+//         '내 정보',
+//         style: TextStyle(fontSize: 40),
+//       ),
+//     );
+//   }
+// }
+
+class NoticePage extends StatelessWidget {
+  const NoticePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [_buildBottom(context), _buildButton(context)],
+    );
+  }
+
+  // 하단
+  Widget _buildBottom(context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    return FutureBuilder(
+      future: _fetchNotices(context),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData == false) {
+          return Container(
+              child: Center(
+                  child: Container(
+                      width: 50,
+                      height: 50,
+                      child: CircularProgressIndicator())));
+        } else if (snapshot.hasError) {
+          return Container(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(fontSize: 15),
+              ),
+            ),
+          );
+        } else {
+          return Container(
+            width: width,
+            height: height * 0.4,
+            child: ListView(
+              physics: ClampingScrollPhysics(),
+              children: [
+                ...List.generate(
+                    snapshot.data.length,
+                        (index) => ListTile(
+                      leading: Icon(Icons.notifications_none),
+                      title: Text('${snapshot.data[index]['sb_title']}'),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DetailPage(
+                                    pk: snapshot.data[index]['sb_id'],
+                                    title: snapshot.data[index]['sb_title'],
+                                    creator: snapshot.data[index]
+                                    ['sb_creator'],
+                                    content: snapshot.data[index]
+                                    ['sb_content'])));
+                      },
+                    ))
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildButton(context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CreatePage()));
+            },
+            child: Text('게시글 작성')),
+      ],
+    );
+  }
+
+  Future<dynamic> _fetchNotices(context) async {
+    dynamic noticeList = await UserAPI(context: context).readNotices();
     print(noticeList);
     return noticeList;
   }
-}
 
-class Page2 extends StatelessWidget {
-  const Page2({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        '이용 서비스',
-        style: TextStyle(fontSize: 40),
-      ),
-    );
-  }
-}
-
-class Page3 extends StatelessWidget {
-  const Page3({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        '내 정보',
-        style: TextStyle(fontSize: 40),
-      ),
-    );
-  }
 }

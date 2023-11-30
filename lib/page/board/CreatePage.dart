@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'api/user_api.dart';
-import 'main.dart';
+import '../../api/user_api.dart';
+import '../../main.dart';
 
 class CreatePage extends StatefulWidget {
   const CreatePage({Key? key}) : super(key: key);
@@ -29,7 +29,7 @@ class _CreatePageState extends State<CreatePage> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(
-            '공지사항',
+            '게시판',
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
           ),
           centerTitle: true,
@@ -154,7 +154,7 @@ class _contentsState extends State<contents> {
         ElevatedButton(
             onPressed: () async {
               final response =
-              await UserAPI(context: context).createNotice(
+              await UserAPI(context: context).createBoard(
                 title: title.text,
                 creator: creator.text,
                 content: content.text,
