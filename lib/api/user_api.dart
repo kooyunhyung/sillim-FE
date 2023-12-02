@@ -60,12 +60,14 @@ class UserAPI extends CommonAPI {
   // 새 게시글 생성
   Future<Map<String, dynamic>> createBoard(
       {required String title,
-        required String creator,
-        required String content}) async {
+      required String creator,
+      required String content}) async {
     final response = await post('sillim/board', body: {
       "sb_title": title,
       "sb_creator": creator,
       "sb_content": content,
+      "sb_like": 0,
+      "sb_bookmark": false
     }, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
@@ -78,6 +80,22 @@ class UserAPI extends CommonAPI {
     return result;
   }
 
+  // 게시 인기글 조회 (좋아요 5 이상)
+  Future<dynamic> readPopularBoards() async {
+    final response = await get('sillim/board/popular', headers: {}, params: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
+  // 게시글 즐겨찾기 조회 (즐겨찾기 표시한 글)
+  Future<dynamic> readBookmarkedBoards() async {
+    final response = await get('sillim/board/bookmark', headers: {}, params: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
+
+
   // 게시글 조회 (단건)
   Future<dynamic> readBoard(int pk) async {
     final response = await get('sillim/board/$pk', headers: {}, params: {});
@@ -88,13 +106,17 @@ class UserAPI extends CommonAPI {
   // 게시글 수정
   Future<Map<String, dynamic>> updateBoard(
       {required pk,
-        required String title,
-        required String creator,
-        required String content}) async {
+      required String title,
+      required String creator,
+      required String content,
+      required int like,
+      required bool bookmark}) async {
     final response = await post('sillim/board/$pk', body: {
       "sb_title": title,
       "sb_creator": creator,
       "sb_content": content,
+      "sb_like": like,
+      "sb_bookmark": bookmark
     }, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
@@ -103,9 +125,8 @@ class UserAPI extends CommonAPI {
   // 게시글 삭제
   Future<Map<String, dynamic>> deleteBoard({required pk}) async {
     final request =
-    await delete('sillim/board/$pk', body: {}, params: {}, headers: {});
+        await delete('sillim/board/$pk', body: {}, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(request.bodyBytes));
     return result;
   }
-
 }

@@ -3,25 +3,30 @@ import 'package:flutter/material.dart';
 import '../../api/user_api.dart';
 import '../../main.dart';
 
-class UpdatePage extends StatefulWidget {
-  UpdatePage(
+class BoardUpdatePage extends StatefulWidget {
+  BoardUpdatePage(
       {Key? key,
       required this.pk,
       required this.title,
       required this.creator,
-      required this.content})
+      required this.content,
+        required this.like,
+        required this.bookmark
+      })
       : super(key: key);
 
   int pk;
   String title;
   String creator;
   String content;
+  int like;
+  bool bookmark;
 
   @override
-  _UpdatePageState createState() => _UpdatePageState();
+  _BoardUpdatePageState createState() => _BoardUpdatePageState();
 }
 
-class _UpdatePageState extends State<UpdatePage> {
+class _BoardUpdatePageState extends State<BoardUpdatePage> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -52,7 +57,10 @@ class _UpdatePageState extends State<UpdatePage> {
           pk: widget.pk,
           title: widget.title,
           creator: widget.creator,
-          content: widget.content),
+          content: widget.content,
+          like: widget.like,
+        bookmark: widget.bookmark
+      ),
     );
   }
 }
@@ -65,7 +73,10 @@ class contents extends StatefulWidget {
       required this.pk,
       required this.title,
       required this.creator,
-      required this.content})
+      required this.content,
+      required this.like,
+        required this.bookmark
+      })
       : super(key: key);
 
   double width;
@@ -74,6 +85,8 @@ class contents extends StatefulWidget {
   String title;
   String creator;
   String content;
+  int like;
+  bool bookmark;
 
   @override
   _contentsState createState() => _contentsState();
@@ -185,7 +198,10 @@ class _contentsState extends State<contents> {
                   pk: pk,
                   title: titleController.text,
                   creator: widget.creator,
-                  content: contentController.text);
+                  content: contentController.text,
+                  like: widget.like,
+                  bookmark: widget.bookmark
+              );
 
               if (response['statusCode'] == 200) {
                 print(response['statusCode']);

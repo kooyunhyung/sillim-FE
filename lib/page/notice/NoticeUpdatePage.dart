@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'UpdatePage.dart';
 import '../../api/user_api.dart';
 import '../../main.dart';
 
-class DetailPage extends StatefulWidget {
-  DetailPage(
+class NoticeUpdatePage extends StatefulWidget {
+  NoticeUpdatePage(
       {Key? key,
       required this.pk,
       required this.title,
@@ -19,10 +18,10 @@ class DetailPage extends StatefulWidget {
   String content;
 
   @override
-  _DetailPageState createState() => _DetailPageState();
+  _NoticeUpdatePageState createState() => _NoticeUpdatePageState();
 }
 
-class _DetailPageState extends State<DetailPage> {
+class _NoticeUpdatePageState extends State<NoticeUpdatePage> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -41,7 +40,7 @@ class _DetailPageState extends State<DetailPage> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(
-            '게시판',
+            '공지사항',
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
           ),
           centerTitle: true,
@@ -50,8 +49,8 @@ class _DetailPageState extends State<DetailPage> {
       body: contents(
           width: width,
           height: height,
-          title: widget.title,
           pk: widget.pk,
+          title: widget.title,
           creator: widget.creator,
           content: widget.content),
     );
@@ -81,22 +80,32 @@ class contents extends StatefulWidget {
 }
 
 class _contentsState extends State<contents> {
+  TextEditingController titleController = TextEditingController();
+  TextEditingController contentController = TextEditingController();
+
+  @override
+  void initState() {
+    titleController.text = widget.title;
+    contentController.text = widget.content;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListView(
         children: [
-          _title(widget.width, widget.height, widget.title),
+          _title(widget.width, widget.height),
           _creator(widget.width, widget.height, widget.creator),
-          _content(widget.width, widget.height, widget.content),
+          _content(widget.width, widget.height),
           _button(widget.pk)
         ],
       ),
     );
   }
 
-  Widget _title(width, height, title) {
+  Widget _title(width, height) {
     return Container(
       width: width * 0.9,
       height: height * 0.08,
@@ -115,7 +124,11 @@ class _contentsState extends State<contents> {
             decoration: BoxDecoration(
                 border: Border.all(color: Colors.blue, width: 5),
                 borderRadius: BorderRadius.circular(10)),
-            child: Text(title),
+            child: TextField(
+              controller: titleController,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(border: InputBorder.none),
+            ),
           )
         ],
       ),
@@ -147,14 +160,19 @@ class _contentsState extends State<contents> {
     );
   }
 
-  Widget _content(width, height, content) {
+  Widget _content(width, height) {
     return Container(
-        width: width * 0.9,
-        height: height * 0.6,
-        decoration: BoxDecoration(
-            border: Border.all(color: Colors.blue, width: 5),
-            borderRadius: BorderRadius.circular(10)),
-        child: Text(content));
+      width: width * 0.9,
+      height: height * 0.6,
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.blue, width: 5),
+          borderRadius: BorderRadius.circular(10)),
+      child: TextField(
+        controller: contentController,
+        keyboardType: TextInputType.text,
+        decoration: InputDecoration(border: InputBorder.none),
+      ),
+    );
   }
 
   Widget _button(pk) {
@@ -162,22 +180,12 @@ class _contentsState extends State<contents> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => UpdatePage(
-                            pk: pk,
-                            title: widget.title,
-                            creator: widget.creator,
-                            content: widget.content,
-                          )));
-            },
-            child: Text('UPDATE')),
-        ElevatedButton(
             onPressed: () async {
-              final response =
-                  await UserAPI(context: context).deleteBoard(pk: pk);
+              final response = await UserAPI(context: context).updateNotice(
+                  pk: pk,
+                  title: titleController.text,
+                  creator: widget.creator,
+                  content: contentController.text);
 
               if (response['statusCode'] == 200) {
                 print(response['statusCode']);
@@ -189,7 +197,7 @@ class _contentsState extends State<contents> {
                   MaterialPageRoute(builder: (context) => MyHomePage()),
                   (route) => false);
             },
-            child: Text('DELETE')),
+            child: Text('UPDATE')),
       ],
     );
   }

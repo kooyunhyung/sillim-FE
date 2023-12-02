@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import '../../api/user_api.dart';
 import '../../main.dart';
 
-class CreatePage extends StatefulWidget {
-  const CreatePage({Key? key}) : super(key: key);
+class NoticeCreatePage extends StatefulWidget {
+  const NoticeCreatePage({Key? key}) : super(key: key);
 
   @override
-  _CreatePageState createState() => _CreatePageState();
+  _NoticeCreatePageState createState() => _NoticeCreatePageState();
 }
 
-class _CreatePageState extends State<CreatePage> {
+class _NoticeCreatePageState extends State<NoticeCreatePage> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
