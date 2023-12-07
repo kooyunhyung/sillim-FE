@@ -160,6 +160,11 @@ class _contentsState extends State<contents> {
                 content: content.text,
               );
 
+              int id=response["obj"]["sn_id"];
+
+              final response2=
+              await UserAPI(context: context).insertElasticSearchNotice(id:id,title: title.text, creator: creator.text, content: content.text);
+
               Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => MyHomePage()),
                       (route) => false);

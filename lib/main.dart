@@ -150,7 +150,6 @@ class frame extends StatefulWidget {
 }
 
 class _frameState extends State<frame> {
-
   var _index = 0; //페이지 인덱스 0,1,2
 
   @override
@@ -262,18 +261,32 @@ class _frameState extends State<frame> {
 }
 
 // 전체글
-class BoardPage extends StatelessWidget {
+class BoardPage extends StatefulWidget {
   const BoardPage({Key? key}) : super(key: key);
 
   @override
+  State<BoardPage> createState() => _BoardPageState();
+}
+
+class _BoardPageState extends State<BoardPage> {
+  var _index = 0; // 일반 글이냐 검색된 글이냐
+
+  TextEditingController searchController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
+    var _pages = [_buildBottomAll(context), _buildBottomSearched(context)];
+
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
     return Column(
-      children: [_buildBottom(context), _buildButton(context)],
+      children: [_pages[_index], _buildButton(context, width, height)],
     );
   }
 
-  // 하단
-  Widget _buildBottom(context) {
+  // 하단 (전체글 불러오기)
+  Widget _buildBottomAll(context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
@@ -321,8 +334,8 @@ class BoardPage extends StatelessWidget {
                                         content: snapshot.data[index]
                                             ['sb_content'],
                                         like: snapshot.data[index]['sb_like'],
-                                        bookmark: snapshot.data[index]['sb_bookmark']
-                                    )));
+                                        bookmark: snapshot.data[index]
+                                            ['sb_bookmark'])));
                           },
                         ))
               ],
@@ -333,9 +346,71 @@ class BoardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(context) {
+  // 하단 (검색된 글 불러오기)
+  Widget _buildBottomSearched(context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    return FutureBuilder(
+      future: _fetchBoardsSearched(context),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData == false) {
+          return Container(
+              child: Center(
+                  child: Container(
+                      width: 50,
+                      height: 50,
+                      child: CircularProgressIndicator())));
+        } else if (snapshot.hasError) {
+          return Container(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(fontSize: 15),
+              ),
+            ),
+          );
+        } else {
+          return Container(
+            width: width,
+            height: height * 0.4,
+            child: ListView(
+              physics: ClampingScrollPhysics(),
+              children: [
+                ...List.generate(
+                    snapshot.data.length,
+                    (index) => ListTile(
+                          leading: Icon(Icons.message_outlined),
+                          title: Text('${snapshot.data[index]["_source"]['boardTitle']}'),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => BoardDetailPage(
+                                        pk: snapshot.data[index]['_source']['boardId'],
+                                        title: snapshot.data[index]['_source']['boardTitle'],
+                                        creator: snapshot.data[index]['_source']
+                                            ['boardCreator'],
+                                        content: snapshot.data[index]['_source']
+                                            ['boardContent'],
+                                        like: snapshot.data[index]['_source']['boardLike'],
+                                        bookmark: snapshot.data[index]['_source']
+                                            ['boardBookmark'])));
+                          },
+                        ))
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildButton(context, width, height) {
+
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         ElevatedButton(
             onPressed: () {
@@ -343,6 +418,43 @@ class BoardPage extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => BoardCreatePage()));
             },
             child: Text('게시글 작성')),
+        Row(
+          children: [
+            Container(
+              width: width * 0.47,
+              height: height * 0.05,
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.blue, width: 2),
+                  borderRadius: BorderRadius.circular(5)),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 2.0),
+                child: TextField(
+                  controller: searchController,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(border: InputBorder.none),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _index = 1;
+                });
+              },
+              child: Container(
+                width: width * 0.1,
+                height: height * 0.05,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.blue, width: 2),
+                    borderRadius: BorderRadius.circular(5)),
+                child: Icon(
+                  Icons.search,
+                  size: 30,
+                ),
+              ),
+            )
+          ],
+        ),
       ],
     );
   }
@@ -351,6 +463,13 @@ class BoardPage extends StatelessWidget {
     dynamic boardList = await UserAPI(context: context).readBoards();
     print(boardList);
     return boardList;
+  }
+
+  Future<dynamic> _fetchBoardsSearched(context) async {
+    dynamic searchedBoard = await UserAPI(context: context).readElasticSearchBoards(searchText: searchController.text);
+    dynamic searchedData=searchedBoard["hits"]["hits"];
+    print(searchedData);
+    return searchedData;
   }
 }
 
@@ -398,25 +517,25 @@ class PopularBoardPage extends StatelessWidget {
               children: [
                 ...List.generate(
                     snapshot.data.length,
-                        (index) => ListTile(
-                      leading: Icon(Icons.message_outlined),
-                      title: Text('${snapshot.data[index]['sb_title']}'),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => BoardDetailPage(
-                                    pk: snapshot.data[index]['sb_id'],
-                                    title: snapshot.data[index]['sb_title'],
-                                    creator: snapshot.data[index]
-                                    ['sb_creator'],
-                                    content: snapshot.data[index]
-                                    ['sb_content'],
-                                    like: snapshot.data[index]['sb_like'],
-                                    bookmark: snapshot.data[index]['sb_bookmark']
-                                )));
-                      },
-                    ))
+                    (index) => ListTile(
+                          leading: Icon(Icons.message_outlined),
+                          title: Text('${snapshot.data[index]['sb_title']}'),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => BoardDetailPage(
+                                        pk: snapshot.data[index]['sb_id'],
+                                        title: snapshot.data[index]['sb_title'],
+                                        creator: snapshot.data[index]
+                                            ['sb_creator'],
+                                        content: snapshot.data[index]
+                                            ['sb_content'],
+                                        like: snapshot.data[index]['sb_like'],
+                                        bookmark: snapshot.data[index]
+                                            ['sb_bookmark'])));
+                          },
+                        ))
               ],
             ),
           );
@@ -490,25 +609,25 @@ class BookMarkedPage extends StatelessWidget {
               children: [
                 ...List.generate(
                     snapshot.data.length,
-                        (index) => ListTile(
-                      leading: Icon(Icons.message_outlined),
-                      title: Text('${snapshot.data[index]['sb_title']}'),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => BoardDetailPage(
-                                    pk: snapshot.data[index]['sb_id'],
-                                    title: snapshot.data[index]['sb_title'],
-                                    creator: snapshot.data[index]
-                                    ['sb_creator'],
-                                    content: snapshot.data[index]
-                                    ['sb_content'],
-                                    like: snapshot.data[index]['sb_like'],
-                                    bookmark: snapshot.data[index]['sb_bookmark']
-                                )));
-                      },
-                    ))
+                    (index) => ListTile(
+                          leading: Icon(Icons.message_outlined),
+                          title: Text('${snapshot.data[index]['sb_title']}'),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => BoardDetailPage(
+                                        pk: snapshot.data[index]['sb_id'],
+                                        title: snapshot.data[index]['sb_title'],
+                                        creator: snapshot.data[index]
+                                            ['sb_creator'],
+                                        content: snapshot.data[index]
+                                            ['sb_content'],
+                                        like: snapshot.data[index]['sb_like'],
+                                        bookmark: snapshot.data[index]
+                                            ['sb_bookmark'])));
+                          },
+                        ))
               ],
             ),
           );
@@ -538,18 +657,34 @@ class BookMarkedPage extends StatelessWidget {
   }
 }
 
-class NoticePage extends StatelessWidget {
+class NoticePage extends StatefulWidget {
   const NoticePage({Key? key}) : super(key: key);
 
   @override
+  State<NoticePage> createState() => _NoticePageState();
+}
+
+class _NoticePageState extends State<NoticePage> {
+  var _index=0;
+  TextEditingController searchController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    var _pages=[
+      _buildBottomAll(context),
+      _buildBottomSearched(context)
+    ];
+
     return Column(
-      children: [_buildBottom(context), _buildButton(context)],
+      children: [_pages[_index], _buildButton(context, width, height)],
     );
   }
 
   // 하단
-  Widget _buildBottom(context) {
+  Widget _buildBottomAll(context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
@@ -582,22 +717,22 @@ class NoticePage extends StatelessWidget {
               children: [
                 ...List.generate(
                     snapshot.data.length,
-                        (index) => ListTile(
-                      leading: Icon(Icons.notifications),
-                      title: Text('${snapshot.data[index]['sn_title']}'),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => NoticeDetailPage(
-                                    pk: snapshot.data[index]['sn_id'],
-                                    title: snapshot.data[index]['sn_title'],
-                                    creator: snapshot.data[index]
-                                    ['sn_creator'],
-                                    content: snapshot.data[index]
-                                    ['sn_content'])));
-                      },
-                    ))
+                    (index) => ListTile(
+                          leading: Icon(Icons.notifications),
+                          title: Text('${snapshot.data[index]['sn_title']}'),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => NoticeDetailPage(
+                                        pk: snapshot.data[index]['sn_id'],
+                                        title: snapshot.data[index]['sn_title'],
+                                        creator: snapshot.data[index]
+                                            ['sn_creator'],
+                                        content: snapshot.data[index]
+                                            ['sn_content'])));
+                          },
+                        ))
               ],
             ),
           );
@@ -606,9 +741,67 @@ class NoticePage extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(context) {
+  Widget _buildBottomSearched(context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    return FutureBuilder(
+      future: _fetchNoticesSearched(context),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData == false) {
+          return Container(
+              child: Center(
+                  child: Container(
+                      width: 50,
+                      height: 50,
+                      child: CircularProgressIndicator())));
+        } else if (snapshot.hasError) {
+          return Container(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(fontSize: 15),
+              ),
+            ),
+          );
+        } else {
+          return Container(
+            width: width,
+            height: height * 0.4,
+            child: ListView(
+              physics: ClampingScrollPhysics(),
+              children: [
+                ...List.generate(
+                    snapshot.data.length,
+                    (index) => ListTile(
+                          leading: Icon(Icons.notifications),
+                          title: Text('${snapshot.data[index]['_source']["noticeTitle"]}'),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => NoticeDetailPage(
+                                        pk: snapshot.data[index]['_source']['noticeId'],
+                                        title: snapshot.data[index]['_source']['noticeTitle'],
+                                        creator: snapshot.data[index]['_source']
+                                            ['noticeCreator'],
+                                        content: snapshot.data[index]['_source']
+                                            ['noticeContent'])));
+                          },
+                        ))
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildButton(context, width, height) {
+
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         ElevatedButton(
             onPressed: () {
@@ -616,6 +809,43 @@ class NoticePage extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => NoticeCreatePage()));
             },
             child: Text('공지사항 작성')),
+        Row(
+          children: [
+            Container(
+              width: width * 0.47,
+              height: height * 0.05,
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.blue, width: 2),
+                  borderRadius: BorderRadius.circular(5)),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 2.0),
+                child: TextField(
+                  controller: searchController,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(border: InputBorder.none),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _index=1;
+                });
+              },
+              child: Container(
+                width: width * 0.1,
+                height: height * 0.05,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.blue, width: 2),
+                    borderRadius: BorderRadius.circular(5)),
+                child: Icon(
+                  Icons.search,
+                  size: 30,
+                ),
+              ),
+            )
+          ],
+        ),
       ],
     );
   }
@@ -626,4 +856,10 @@ class NoticePage extends StatelessWidget {
     return noticeList;
   }
 
+  Future<dynamic> _fetchNoticesSearched(context) async {
+    dynamic searchedNotice = await UserAPI(context: context).readElasticSearchNotices(searchText: searchController.text);
+    dynamic searchedData=searchedNotice["hits"]["hits"];
+    print(searchedData);
+    return searchedData;
+  }
 }

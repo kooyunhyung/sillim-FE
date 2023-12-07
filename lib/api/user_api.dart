@@ -20,9 +20,44 @@ class UserAPI extends CommonAPI {
     return result;
   }
 
+  // 새 공지 elastic search에게 insert
+  Future<Map<String, dynamic>> insertElasticSearchNotice(
+      {required int id,
+      required String title,
+      required String creator,
+      required String content}) async {
+    final response = await post('apis3/insert', body: {
+      "noticeId": id,
+      "noticeTitle": title,
+      "noticeCreator": creator,
+      "noticeContent": content,
+    }, params: {}, headers: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
   // 공지 조회 (전체)
   Future<dynamic> readNotices() async {
     final response = await get('sillim/notice', headers: {}, params: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
+  // elastic search 로부터 공지 조회 (전체)
+  Future<dynamic> readElasticSearchNotices({required String searchText}) async {
+    final response =
+        await getElastic('notices_index/_search', body: {
+          "query": {
+            "bool": {
+              // "must": [
+              //   {"match": {"noticeContent": searchText}}
+              // ],
+              "should": [
+                {"match": {"noticeTitle": searchText}}
+              ]
+            }
+          }
+        } ,headers: {}, params: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
   }
@@ -73,9 +108,49 @@ class UserAPI extends CommonAPI {
     return result;
   }
 
+  // 새 게시글 elastic search에게 insert
+  Future<Map<String, dynamic>> insertElasticSearchBoard(
+      {required int id,
+        required String title,
+        required String creator,
+        required String content,
+        required int like,
+        required bool bookmark
+      }) async {
+    final response = await post('apis2/insert', body: {
+      "boardId": id,
+      "boardTitle": title,
+      "boardCreator": creator,
+      "boardContent": content,
+      "boardLike": 0,
+      "boardBookmark": false
+    }, params: {}, headers: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
   // 게시글 조회 (전체)
   Future<dynamic> readBoards() async {
     final response = await get('sillim/board', headers: {}, params: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
+  // elastic search 로부터 게시글 조회 (전체)
+  Future<dynamic> readElasticSearchBoards({required String searchText}) async {
+    final response =
+    await getElastic('boards_index/_search', body: {
+      "query": {
+        "bool": {
+          // "must": [
+          //   {"match": {"noticeContent": searchText}}
+          // ],
+          "should": [
+            {"match": {"boardTitle": searchText}}
+          ]
+        }
+      }
+    } ,headers: {}, params: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
   }
@@ -89,12 +164,11 @@ class UserAPI extends CommonAPI {
 
   // 게시글 즐겨찾기 조회 (즐겨찾기 표시한 글)
   Future<dynamic> readBookmarkedBoards() async {
-    final response = await get('sillim/board/bookmark', headers: {}, params: {});
+    final response =
+        await get('sillim/board/bookmark', headers: {}, params: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
   }
-
-
 
   // 게시글 조회 (단건)
   Future<dynamic> readBoard(int pk) async {

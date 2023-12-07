@@ -52,8 +52,8 @@ class _BoardDetailPageState extends State<BoardDetailPage> {
                 Icons.arrow_back,
                 color: Colors.black,
               ),
-              onPressed: () => Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (context) => MyHomePage())),
+              onPressed: () => Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => MyHomePage())),
             ),
             title: Text(
               '게시판',
@@ -215,6 +215,16 @@ class _contentsState extends State<contents> {
                           bookmark: bookmarkTmp,
                         );
 
+                        final response2 = await UserAPI(context: context)
+                            .insertElasticSearchBoard(
+                          id: widget.pk,
+                          title: widget.title,
+                          creator: widget.creator,
+                          content: widget.content,
+                          like: newLikeValue,
+                          bookmark: bookmarkTmp,
+                        );
+
                         if (response['statusCode'] == 200) {
                           setState(() {
                             likeTmp = newLikeValue;
@@ -248,6 +258,16 @@ class _contentsState extends State<contents> {
                             final response =
                                 await UserAPI(context: context).updateBoard(
                               pk: widget.pk,
+                              title: widget.title,
+                              creator: widget.creator,
+                              content: widget.content,
+                              like: likeTmp,
+                              bookmark: newBookmarkValue,
+                            );
+
+                            final response2 =
+                            await UserAPI(context: context).insertElasticSearchBoard(
+                              id: widget.pk,
                               title: widget.title,
                               creator: widget.creator,
                               content: widget.content,
