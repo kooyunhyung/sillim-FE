@@ -180,6 +180,8 @@ class _contentsState extends State<contents> {
               final response =
                   await UserAPI(context: context).deleteNotice(pk: pk);
 
+              UserAPI(context: context).deleteElasticSearchNotice(pk: pk);
+
               if (response['statusCode'] == 200) {
                 print(response['statusCode']);
               } else {

@@ -308,11 +308,22 @@ class _contentsState extends State<contents> {
                               bookmark: newBookmarkValue,
                             );
 
+                            final response2 =
+                            await UserAPI(context: context).insertElasticSearchBoard(
+                              id: widget.pk,
+                              title: widget.title,
+                              creator: widget.creator,
+                              content: widget.content,
+                              like: likeTmp,
+                              bookmark: newBookmarkValue,
+                            );
+
                             if (response['statusCode'] == 200) {
                               setState(() {
                                 bookmarkTmp = newBookmarkValue;
                               });
                               print(response['statusCode']);
+                              print(response2);
                             } else {
                               print(response['statusCode']);
                             }
@@ -351,18 +362,24 @@ class _contentsState extends State<contents> {
             child: Text('UPDATE')),
         ElevatedButton(
             onPressed: () async {
-              final response =
-                  await UserAPI(context: context).deleteBoard(pk: pk);
+              try {
+                final response = await UserAPI(context: context).deleteBoard(pk: pk);
+                UserAPI(context: context).deleteElasticSearchBoard(pk: pk);
 
-              if (response['statusCode'] == 200) {
-                print(response['statusCode']);
-              } else {
-                print(response['statusCode']);
-              }
+                if (response['statusCode'] == 200) {
+                  print(response['statusCode']);
+                } else {
+                  print(response['statusCode']);
+                }
 
-              Navigator.of(context).pushAndRemoveUntil(
+                Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => MyHomePage()),
-                  (route) => false);
+                      (route) => false,
+                );
+              } catch (e) {
+                print('Error: $e');
+                // Handle the error appropriately
+              }
             },
             child: Text('DELETE')),
       ],

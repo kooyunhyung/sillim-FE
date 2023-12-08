@@ -187,6 +187,12 @@ class _contentsState extends State<contents> {
                   creator: widget.creator,
                   content: contentController.text);
 
+              final response2 = await UserAPI(context: context).insertElasticSearchNotice(
+                  id: pk,
+                  title: titleController.text,
+                  creator: widget.creator,
+                  content: contentController.text);
+
               if (response['statusCode'] == 200) {
                 print(response['statusCode']);
               } else {

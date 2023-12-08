@@ -45,19 +45,35 @@ class UserAPI extends CommonAPI {
 
   // elastic search 로부터 공지 조회 (전체)
   Future<dynamic> readElasticSearchNotices({required String searchText}) async {
-    final response =
-        await getElastic('notices_index/_search', body: {
-          "query": {
-            "bool": {
-              // "must": [
-              //   {"match": {"noticeContent": searchText}}
-              // ],
-              "should": [
-                {"match": {"noticeTitle": searchText}}
-              ]
+    final response = await getElastic('notices_index/_search', body: {
+      "query": {
+        "bool": {
+          "must": [
+            {
+              "match_phrase": {
+                "noticeTitle": searchText
+              }
             }
-          }
-        } ,headers: {}, params: {});
+          ],
+          "should": [
+            {
+              "match": {
+                "noticeTitle": {
+                  "query": searchText
+                }
+              }
+            },
+            {
+              "match": {
+                "noticeContent": {
+                  "query": searchText
+                }
+              }
+            }
+          ]
+        }
+      }
+    }, headers: {}, params: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
   }
@@ -92,6 +108,11 @@ class UserAPI extends CommonAPI {
     return result;
   }
 
+  // elastic search 공지 삭제
+  void deleteElasticSearchNotice({required pk}) {
+    delete('apis3/delete/$pk', body: {}, params: {}, headers: {});
+  }
+
   // 새 게시글 생성
   Future<Map<String, dynamic>> createBoard(
       {required String title,
@@ -111,19 +132,18 @@ class UserAPI extends CommonAPI {
   // 새 게시글 elastic search에게 insert
   Future<Map<String, dynamic>> insertElasticSearchBoard(
       {required int id,
-        required String title,
-        required String creator,
-        required String content,
-        required int like,
-        required bool bookmark
-      }) async {
+      required String title,
+      required String creator,
+      required String content,
+      required int like,
+      required bool bookmark}) async {
     final response = await post('apis2/insert', body: {
       "boardId": id,
       "boardTitle": title,
       "boardCreator": creator,
       "boardContent": content,
-      "boardLike": 0,
-      "boardBookmark": false
+      "boardLike": like,
+      "boardBookmark": bookmark
     }, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
@@ -138,19 +158,35 @@ class UserAPI extends CommonAPI {
 
   // elastic search 로부터 게시글 조회 (전체)
   Future<dynamic> readElasticSearchBoards({required String searchText}) async {
-    final response =
-    await getElastic('boards_index/_search', body: {
+    final response = await getElastic('boards_index/_search', body: {
       "query": {
         "bool": {
-          // "must": [
-          //   {"match": {"noticeContent": searchText}}
-          // ],
+          "must": [
+            {
+              "match_phrase": {
+                "boardTitle": searchText
+              }
+            }
+          ],
           "should": [
-            {"match": {"boardTitle": searchText}}
+            {
+              "match": {
+                "boardTitle": {
+                  "query": searchText
+                }
+              }
+            },
+            {
+              "match": {
+                "boardContent": {
+                  "query": searchText
+                }
+              }
+            }
           ]
         }
       }
-    } ,headers: {}, params: {});
+    }, headers: {}, params: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
   }
@@ -202,5 +238,10 @@ class UserAPI extends CommonAPI {
         await delete('sillim/board/$pk', body: {}, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(request.bodyBytes));
     return result;
+  }
+
+  // elastic search 게시글 삭제
+  void deleteElasticSearchBoard({required pk}) {
+    delete('apis2/delete/$pk', body: {}, params: {}, headers: {});
   }
 }

@@ -203,6 +203,15 @@ class _contentsState extends State<contents> {
                   bookmark: widget.bookmark
               );
 
+              final response2 = await UserAPI(context: context).insertElasticSearchBoard(
+                  id: pk,
+                  title: titleController.text,
+                  creator: widget.creator,
+                  content: contentController.text,
+                  like: widget.like,
+                  bookmark: widget.bookmark
+              );
+
               if (response['statusCode'] == 200) {
                 print(response['statusCode']);
               } else {
