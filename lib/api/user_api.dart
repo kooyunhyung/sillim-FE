@@ -43,31 +43,25 @@ class UserAPI extends CommonAPI {
     return result;
   }
 
-  // elastic search 로부터 공지 조회 (전체)
-  Future<dynamic> readElasticSearchNotices({required String searchText}) async {
+  // elastic search 로부터 공지 조회 (제목별)
+  Future<dynamic> readElasticSearchNoticesByTitle({required String searchText}) async {
     final response = await getElastic('notices_index/_search', body: {
       "query": {
         "bool": {
           "must": [
             {
-              "match_phrase": {
-                "noticeTitle": searchText
-              }
+              "match_phrase": {"noticeTitle": searchText}
             }
           ],
           "should": [
             {
               "match": {
-                "noticeTitle": {
-                  "query": searchText
-                }
+                "noticeTitle": {"query": searchText}
               }
             },
             {
               "match": {
-                "noticeContent": {
-                  "query": searchText
-                }
+                "noticeContent": {"query": searchText}
               }
             }
           ]
@@ -77,6 +71,33 @@ class UserAPI extends CommonAPI {
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
   }
+
+  // elastic search 로부터 공지 조회 (작성자별)
+  Future<dynamic> readElasticSearchNoticesByCreator(
+      {required String searchText}) async {
+    final response = await getElastic('notices_index/_search', body: {
+      "query": {
+        "wildcard": {"noticeCreator": "*$searchText*"}
+      }
+    }, headers: {}, params: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
+  // elastic search 로부터 공지 조회 (내용별)
+  Future<dynamic> readElasticSearchNoticesByContent(
+      {required String searchText}) async {
+    final response = await getElastic('notices_index/_search', body: {
+      "query": {
+        "match": {
+          "noticeContent": searchText
+        }
+      }
+    }, headers: {}, params: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
 
   // 공지 조회 (단건)
   Future<dynamic> readNotice(int pk) async {
@@ -156,34 +177,55 @@ class UserAPI extends CommonAPI {
     return result;
   }
 
-  // elastic search 로부터 게시글 조회 (전체)
-  Future<dynamic> readElasticSearchBoards({required String searchText}) async {
+  // elastic search 로부터 게시글 조회 (제목별)
+  Future<dynamic> readElasticSearchBoardsByTitle(
+      {required String searchText}) async {
     final response = await getElastic('boards_index/_search', body: {
       "query": {
         "bool": {
           "must": [
             {
-              "match_phrase": {
-                "boardTitle": searchText
-              }
+              "match_phrase": {"boardTitle": searchText}
             }
           ],
           "should": [
             {
               "match": {
-                "boardTitle": {
-                  "query": searchText
-                }
+                "boardTitle": {"query": searchText}
               }
             },
             {
               "match": {
-                "boardContent": {
-                  "query": searchText
-                }
+                "boardContent": {"query": searchText}
               }
             }
           ]
+        }
+      }
+    }, headers: {}, params: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
+  // elastic search 로부터 게시글 조회 (작성자별)
+  Future<dynamic> readElasticSearchBoardsByCreator(
+      {required String searchText}) async {
+    final response = await getElastic('boards_index/_search', body: {
+      "query": {
+        "wildcard": {"boardCreator": "*$searchText*"}
+      }
+    }, headers: {}, params: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
+  // elastic search 로부터 게시글 조회 (내용별)
+  Future<dynamic> readElasticSearchBoardsByContent(
+      {required String searchText}) async {
+    final response = await getElastic('boards_index/_search', body: {
+      "query": {
+        "match": {
+          "boardContent": searchText
         }
       }
     }, headers: {}, params: {});

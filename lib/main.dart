@@ -120,24 +120,6 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true, //제목을 가운데로
       ),
       body: frame(),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: (index) {
-          setState(() {
-            _index = index;
-          });
-        },
-        currentIndex: _index, //선택된 인덱스
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            label: '숙박정보',
-            icon: Icon(Icons.hotel),
-          ),
-          BottomNavigationBarItem(
-            label: '음식점 정보',
-            icon: Icon(Icons.restaurant),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -271,7 +253,18 @@ class BoardPage extends StatefulWidget {
 class _BoardPageState extends State<BoardPage> {
   var _index = 0; // 일반 글이냐 검색된 글이냐
 
+  final _search_condition = ['제목', '작성자', '내용'];
+  String? _selectedCondition;
+
   TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _selectedCondition = _search_condition[0];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -382,21 +375,25 @@ class _BoardPageState extends State<BoardPage> {
                     snapshot.data.length,
                     (index) => ListTile(
                           leading: Icon(Icons.message_outlined),
-                          title: Text('${snapshot.data[index]["_source"]['boardTitle']}'),
+                          title: Text(
+                              '${snapshot.data[index]["_source"]['boardTitle']}'),
                           onTap: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => BoardDetailPage(
-                                        pk: snapshot.data[index]['_source']['boardId'],
-                                        title: snapshot.data[index]['_source']['boardTitle'],
+                                        pk: snapshot.data[index]['_source']
+                                            ['boardId'],
+                                        title: snapshot.data[index]['_source']
+                                            ['boardTitle'],
                                         creator: snapshot.data[index]['_source']
                                             ['boardCreator'],
                                         content: snapshot.data[index]['_source']
                                             ['boardContent'],
-                                        like: snapshot.data[index]['_source']['boardLike'],
-                                        bookmark: snapshot.data[index]['_source']
-                                            ['boardBookmark'])));
+                                        like: snapshot.data[index]['_source']
+                                            ['boardLike'],
+                                        bookmark: snapshot.data[index]
+                                            ['_source']['boardBookmark'])));
                           },
                         ))
               ],
@@ -408,54 +405,86 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   Widget _buildButton(context, width, height) {
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        ElevatedButton(
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => BoardCreatePage()));
-            },
-            child: Text('게시글 작성')),
-        Row(
-          children: [
-            Container(
-              width: width * 0.47,
-              height: height * 0.05,
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blue, width: 2),
-                  borderRadius: BorderRadius.circular(5)),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 2.0),
-                child: TextField(
-                  controller: searchController,
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(border: InputBorder.none),
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _index = 1;
-                });
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ElevatedButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => BoardCreatePage()));
               },
-              child: Container(
-                width: width * 0.1,
+              child: Text('게시글 작성')),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                height: height * 0.05,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade400, width: 2),
+                    borderRadius: BorderRadius.circular(5)),
+                child: DropdownButton(
+                    underline: SizedBox.shrink(),
+                    value: _selectedCondition,
+                    items: _search_condition
+                        .map((e) => DropdownMenuItem(
+                              value: e,
+                              child: Text(e),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedCondition = value!;
+                        print(_selectedCondition);
+                      });
+                    }),
+              ),
+              SizedBox(
+                width: width * 0.02,
+              ),
+              Container(
+                width: width * 0.47,
                 height: height * 0.05,
                 decoration: BoxDecoration(
                     border: Border.all(color: Colors.blue, width: 2),
                     borderRadius: BorderRadius.circular(5)),
-                child: Icon(
-                  Icons.search,
-                  size: 30,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 2.0),
+                  child: TextField(
+                    controller: searchController,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(border: InputBorder.none),
+                  ),
                 ),
               ),
-            )
-          ],
-        ),
-      ],
+              SizedBox(
+                width: width * 0.02,
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _index = 1;
+                  });
+                },
+                child: Container(
+                  width: width * 0.1,
+                  height: height * 0.05,
+                  decoration: BoxDecoration(
+                      color: Colors.blue,
+                      border: Border.all(color: Colors.blue, width: 2),
+                      borderRadius: BorderRadius.circular(5)),
+                  child: Icon(
+                    Icons.search,
+                    size: 30,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -466,10 +495,25 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   Future<dynamic> _fetchBoardsSearched(context) async {
-    dynamic searchedBoard = await UserAPI(context: context).readElasticSearchBoards(searchText: searchController.text);
-    dynamic searchedData=searchedBoard["hits"]["hits"];
-    print(searchedData);
-    return searchedData;
+    if (_selectedCondition == '제목') {
+      dynamic searchedBoard = await UserAPI(context: context)
+          .readElasticSearchBoardsByTitle(searchText: searchController.text);
+      dynamic searchedData = searchedBoard["hits"]["hits"];
+      print(searchedData);
+      return searchedData;
+    } else if (_selectedCondition == '작성자') {
+      dynamic searchedBoard = await UserAPI(context: context)
+          .readElasticSearchBoardsByCreator(searchText: searchController.text);
+      dynamic searchedData = searchedBoard["hits"]["hits"];
+      print(searchedData);
+      return searchedData;
+    } else {
+      dynamic searchedBoard = await UserAPI(context: context)
+          .readElasticSearchBoardsByContent(searchText: searchController.text);
+      dynamic searchedData = searchedBoard["hits"]["hits"];
+      print(searchedData);
+      return searchedData;
+    }
   }
 }
 
@@ -665,18 +709,24 @@ class NoticePage extends StatefulWidget {
 }
 
 class _NoticePageState extends State<NoticePage> {
-  var _index=0;
+  var _index = 0;
+  final _search_condition = ['제목', '작성자', '내용'];
+  String? _selectedCondition;
+
   TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCondition = _search_condition[0];
+  }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    var _pages=[
-      _buildBottomAll(context),
-      _buildBottomSearched(context)
-    ];
+    var _pages = [_buildBottomAll(context), _buildBottomSearched(context)];
 
     return Column(
       children: [_pages[_index], _buildButton(context, width, height)],
@@ -776,14 +826,17 @@ class _NoticePageState extends State<NoticePage> {
                     snapshot.data.length,
                     (index) => ListTile(
                           leading: Icon(Icons.notifications),
-                          title: Text('${snapshot.data[index]['_source']["noticeTitle"]}'),
+                          title: Text(
+                              '${snapshot.data[index]['_source']["noticeTitle"]}'),
                           onTap: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => NoticeDetailPage(
-                                        pk: snapshot.data[index]['_source']['noticeId'],
-                                        title: snapshot.data[index]['_source']['noticeTitle'],
+                                        pk: snapshot.data[index]['_source']
+                                            ['noticeId'],
+                                        title: snapshot.data[index]['_source']
+                                            ['noticeTitle'],
                                         creator: snapshot.data[index]['_source']
                                             ['noticeCreator'],
                                         content: snapshot.data[index]['_source']
@@ -799,9 +852,8 @@ class _NoticePageState extends State<NoticePage> {
   }
 
   Widget _buildButton(context, width, height) {
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ElevatedButton(
             onPressed: () {
@@ -810,7 +862,31 @@ class _NoticePageState extends State<NoticePage> {
             },
             child: Text('공지사항 작성')),
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Container(
+              height: height * 0.05,
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400, width: 2),
+                  borderRadius: BorderRadius.circular(5)),
+              child: DropdownButton(
+                  underline: SizedBox.shrink(),
+                  value: _selectedCondition,
+                  items: _search_condition
+                      .map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCondition = value!;
+                    });
+                  }),
+            ),
+            SizedBox(
+              width: width * 0.02,
+            ),
             Container(
               width: width * 0.47,
               height: height * 0.05,
@@ -826,21 +902,26 @@ class _NoticePageState extends State<NoticePage> {
                 ),
               ),
             ),
+            SizedBox(
+              width: width * 0.02,
+            ),
             GestureDetector(
               onTap: () {
                 setState(() {
-                  _index=1;
+                  _index = 1;
                 });
               },
               child: Container(
                 width: width * 0.1,
                 height: height * 0.05,
                 decoration: BoxDecoration(
+                    color: Colors.blue,
                     border: Border.all(color: Colors.blue, width: 2),
                     borderRadius: BorderRadius.circular(5)),
                 child: Icon(
                   Icons.search,
                   size: 30,
+                  color: Colors.white,
                 ),
               ),
             )
@@ -857,9 +938,24 @@ class _NoticePageState extends State<NoticePage> {
   }
 
   Future<dynamic> _fetchNoticesSearched(context) async {
-    dynamic searchedNotice = await UserAPI(context: context).readElasticSearchNotices(searchText: searchController.text);
-    dynamic searchedData=searchedNotice["hits"]["hits"];
-    print(searchedData);
-    return searchedData;
+    if (_selectedCondition == '제목') {
+      dynamic searchedNotice = await UserAPI(context: context)
+          .readElasticSearchNoticesByTitle(searchText: searchController.text);
+      dynamic searchedData = searchedNotice["hits"]["hits"];
+      print(searchedData);
+      return searchedData;
+    } else if (_selectedCondition == '작성자') {
+      dynamic searchedNotice = await UserAPI(context: context)
+          .readElasticSearchNoticesByCreator(searchText: searchController.text);
+      dynamic searchedData = searchedNotice["hits"]["hits"];
+      print(searchedData);
+      return searchedData;
+    } else {
+      dynamic searchedNotice = await UserAPI(context: context)
+          .readElasticSearchNoticesByContent(searchText: searchController.text);
+      dynamic searchedData = searchedNotice["hits"]["hits"];
+      print(searchedData);
+      return searchedData;
+    }
   }
 }
