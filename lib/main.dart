@@ -5,6 +5,8 @@ import 'package:flutter_app/api/user_api.dart';
 
 import 'page/board/BoardCreatePage.dart';
 import 'page/board/BoardDetailPage.dart';
+import 'page/join/JoinPage.dart';
+import 'page/login/LoginPage.dart';
 import 'page/notice/NoticeCreatePage.dart';
 import 'page/notice/NoticeDetailPage.dart';
 
@@ -56,16 +58,78 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
+            DrawerHeader(
                 decoration: BoxDecoration(
-                  color: Colors.grey,
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(15),
+                      bottomRight: Radius.circular(15)),
+                  color: Colors.indigo,
                 ),
-                child: Text(
-                  '로그인',
-                  style: TextStyle(fontSize: 30),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.account_circle_sharp,
+                      color: Colors.white,
+                      size: 73,
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: (){
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) => LoginPage()));
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.power_settings_new,
+                                color: Colors.white,
+                                size: 25,
+                              ),
+                              Text(
+                                '로그인',
+                                style:
+                                    TextStyle(fontSize: 20, color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        GestureDetector(
+                          onTap: (){
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) => JoinPage()));
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_forward,
+                                color: Colors.white,
+                                size: 25,
+                              ),
+                              Text(
+                                '회원가입',
+                                style:
+                                    TextStyle(fontSize: 20, color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
                 )),
             ListTile(
+              leading: Icon(Icons.house),
               title: const Text('Home'),
+              trailing: Icon(Icons.add),
               selected: _drawerIndex == 0,
               onTap: () {
                 _onItemTapped(0);
@@ -73,7 +137,9 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ListTile(
-              title: const Text('Business'),
+              leading: Icon(Icons.settings),
+              title: const Text('Setting'),
+              trailing: Icon(Icons.add),
               selected: _drawerIndex == 1,
               onTap: () {
                 _onItemTapped(1);
@@ -81,7 +147,9 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ListTile(
-              title: const Text('School'),
+              leading: Icon(Icons.question_answer),
+              title: const Text('Q&A'),
+              trailing: Icon(Icons.add),
               selected: _drawerIndex == 2,
               onTap: () {
                 _onItemTapped(2);
@@ -104,19 +172,6 @@ class _MyHomePageState extends State<MyHomePage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: IconButton(
-              icon: Icon(
-                Icons.house_rounded,
-                color: Colors.black,
-                size: 42,
-              ),
-              onPressed: () {},
-            ),
-          ),
-        ],
         centerTitle: true, //제목을 가운데로
       ),
       body: frame(),

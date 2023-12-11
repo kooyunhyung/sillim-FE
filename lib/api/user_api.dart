@@ -6,6 +6,18 @@ class UserAPI extends CommonAPI {
   UserAPI({required BuildContext context, bool? listen})
       : super(context, listen: listen);
 
+  // 유저 로그인
+  Future<Map<String, dynamic>> userLogin(
+      {required String email,
+        required String password}) async {
+    final response = await post('sillim/user/login', body: {
+      "su_email": email,
+      "su_password": password,
+    }, params: {}, headers: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
   // 새 공지 생성
   Future<Map<String, dynamic>> createNotice(
       {required String title,
