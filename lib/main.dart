@@ -31,12 +31,33 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: MyHomePage(
+        pk: -1,
+        email: "",
+        name: "",
+        sex: "",
+        phone: "",
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  MyHomePage(
+      {Key? key,
+      required this.pk,
+      required this.email,
+      required this.name,
+      required this.sex,
+      required this.phone})
+      : super(key: key);
+
+  int pk;
+  String email;
+  String name;
+  String sex;
+  String phone;
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -80,9 +101,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GestureDetector(
-                          onTap: (){
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) => LoginPage()));
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginPage()));
                           },
                           child: Row(
                             children: [
@@ -93,8 +116,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                               Text(
                                 '로그인',
-                                style:
-                                    TextStyle(fontSize: 20, color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.white),
                               ),
                             ],
                           ),
@@ -103,9 +126,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           width: 10,
                         ),
                         GestureDetector(
-                          onTap: (){
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) => JoinPage()));
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => JoinPage()));
                           },
                           child: Row(
                             children: [
@@ -116,8 +141,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                               Text(
                                 '회원가입',
-                                style:
-                                    TextStyle(fontSize: 20, color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.white),
                               ),
                             ],
                           ),
@@ -174,13 +199,31 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         centerTitle: true, //제목을 가운데로
       ),
-      body: frame(),
+      body: frame(
+          pk: widget.pk,
+          email: widget.email,
+          name: widget.name,
+          sex: widget.sex,
+          phone: widget.phone),
     );
   }
 }
 
 class frame extends StatefulWidget {
-  const frame({Key? key}) : super(key: key);
+  frame(
+      {Key? key,
+      required this.pk,
+        required this.email,
+      required this.name,
+      required this.sex,
+      required this.phone})
+      : super(key: key);
+
+  int pk;
+  String email;
+  String name;
+  String sex;
+  String phone;
 
   @override
   _frameState createState() => _frameState();
@@ -192,10 +235,30 @@ class _frameState extends State<frame> {
   @override
   Widget build(BuildContext context) {
     var _pages = [
-      BoardPage(), // 전체글
-      PopularBoardPage(), // 인기글
-      BookMarkedPage(), // 즐겨찬기
-      NoticePage() // 전체공지
+      BoardPage(
+          pk: widget.pk,
+          email: widget.email,
+          name: widget.name,
+          sex: widget.sex,
+          phone: widget.phone), // 전체글
+      PopularBoardPage(
+          pk: widget.pk,
+          email: widget.email,
+          name: widget.name,
+          sex: widget.sex,
+          phone: widget.phone), // 인기글
+      BookMarkedPage(
+          pk: widget.pk,
+          email: widget.email,
+          name: widget.name,
+          sex: widget.sex,
+          phone: widget.phone), // 즐겨찬기
+      NoticePage(
+          pk: widget.pk,
+          email: widget.email,
+          name: widget.name,
+          sex: widget.sex,
+          phone: widget.phone) // 전체공지
     ];
 
     return ListView(
@@ -299,7 +362,20 @@ class _frameState extends State<frame> {
 
 // 전체글
 class BoardPage extends StatefulWidget {
-  const BoardPage({Key? key}) : super(key: key);
+  BoardPage(
+      {Key? key,
+      required this.pk,
+        required this.email,
+      required this.name,
+      required this.sex,
+      required this.phone})
+      : super(key: key);
+
+  int pk;
+  String email;
+  String name;
+  String sex;
+  String phone;
 
   @override
   State<BoardPage> createState() => _BoardPageState();
@@ -376,8 +452,11 @@ class _BoardPageState extends State<BoardPage> {
                                 MaterialPageRoute(
                                     builder: (context) => BoardDetailPage(
                                         pk: snapshot.data[index]['sb_id'],
+                                        email: widget.email,
+                                        sex: widget.sex,
+                                        phone: widget.phone,
                                         title: snapshot.data[index]['sb_title'],
-                                        creator: snapshot.data[index]
+                                        name: snapshot.data[index]
                                             ['sb_creator'],
                                         content: snapshot.data[index]
                                             ['sb_content'],
@@ -439,9 +518,12 @@ class _BoardPageState extends State<BoardPage> {
                                     builder: (context) => BoardDetailPage(
                                         pk: snapshot.data[index]['_source']
                                             ['boardId'],
+                                        email: widget.email,
+                                        sex: widget.sex,
+                                        phone: widget.phone,
                                         title: snapshot.data[index]['_source']
                                             ['boardTitle'],
-                                        creator: snapshot.data[index]['_source']
+                                        name: snapshot.data[index]['_source']
                                             ['boardCreator'],
                                         content: snapshot.data[index]['_source']
                                             ['boardContent'],
@@ -467,8 +549,15 @@ class _BoardPageState extends State<BoardPage> {
         children: [
           ElevatedButton(
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => BoardCreatePage()));
+                if (widget.pk==-1 ){
+                  _showDialog(context, '로그인 후 작성할 수 있습니다');
+                } else{
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              BoardCreatePage(pk: widget.pk, email: widget.email, name: widget.name, sex: widget.sex, phone: widget.phone,)));
+                }
               },
               child: Text('게시글 작성')),
           Row(
@@ -501,15 +590,12 @@ class _BoardPageState extends State<BoardPage> {
               Container(
                 width: width * 0.47,
                 height: height * 0.05,
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.blue, width: 2),
-                    borderRadius: BorderRadius.circular(5)),
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 2.0),
-                  child: TextField(
+                  child: TextFormField(
                     controller: searchController,
                     keyboardType: TextInputType.text,
-                    decoration: InputDecoration(border: InputBorder.none),
+                    decoration: InputDecoration(border: OutlineInputBorder()),
                   ),
                 ),
               ),
@@ -572,9 +658,27 @@ class _BoardPageState extends State<BoardPage> {
   }
 }
 
-class PopularBoardPage extends StatelessWidget {
-  const PopularBoardPage({Key? key}) : super(key: key);
+class PopularBoardPage extends StatefulWidget {
+  PopularBoardPage(
+      {Key? key,
+      required this.pk,
+        required this.email,
+      required this.name,
+      required this.sex,
+      required this.phone})
+      : super(key: key);
 
+  int pk;
+  String email;
+  String name;
+  String sex;
+  String phone;
+
+  @override
+  State<PopularBoardPage> createState() => _PopularBoardPageState();
+}
+
+class _PopularBoardPageState extends State<PopularBoardPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -626,7 +730,10 @@ class PopularBoardPage extends StatelessWidget {
                                     builder: (context) => BoardDetailPage(
                                         pk: snapshot.data[index]['sb_id'],
                                         title: snapshot.data[index]['sb_title'],
-                                        creator: snapshot.data[index]
+                                        email: widget.email,
+                                        sex: widget.sex,
+                                        phone: widget.phone,
+                                        name: snapshot.data[index]
                                             ['sb_creator'],
                                         content: snapshot.data[index]
                                             ['sb_content'],
@@ -650,7 +757,7 @@ class PopularBoardPage extends StatelessWidget {
         ElevatedButton(
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => BoardCreatePage()));
+                  MaterialPageRoute(builder: (context) => BoardCreatePage(pk: widget.pk, email: widget.email, name:widget.name, sex:widget.sex, phone: widget.phone,)));
             },
             child: Text('게시글 작성')),
       ],
@@ -664,9 +771,27 @@ class PopularBoardPage extends StatelessWidget {
   }
 }
 
-class BookMarkedPage extends StatelessWidget {
-  const BookMarkedPage({Key? key}) : super(key: key);
+class BookMarkedPage extends StatefulWidget {
+  BookMarkedPage(
+      {Key? key,
+      required this.pk,
+        required this.email,
+      required this.name,
+      required this.sex,
+      required this.phone})
+      : super(key: key);
 
+  int pk;
+  String email;
+  String name;
+  String sex;
+  String phone;
+
+  @override
+  State<BookMarkedPage> createState() => _BookMarkedPageState();
+}
+
+class _BookMarkedPageState extends State<BookMarkedPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -717,8 +842,11 @@ class BookMarkedPage extends StatelessWidget {
                                 MaterialPageRoute(
                                     builder: (context) => BoardDetailPage(
                                         pk: snapshot.data[index]['sb_id'],
+                                        email: widget.email,
+                                        sex: widget.sex,
+                                        phone: widget.phone,
                                         title: snapshot.data[index]['sb_title'],
-                                        creator: snapshot.data[index]
+                                        name: snapshot.data[index]
                                             ['sb_creator'],
                                         content: snapshot.data[index]
                                             ['sb_content'],
@@ -742,7 +870,7 @@ class BookMarkedPage extends StatelessWidget {
         ElevatedButton(
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => BoardCreatePage()));
+                  MaterialPageRoute(builder: (context) => BoardCreatePage(pk: widget.pk,email: widget.email, name:widget.name, sex:widget.sex, phone: widget.phone,)));
             },
             child: Text('게시글 작성')),
       ],
@@ -757,7 +885,20 @@ class BookMarkedPage extends StatelessWidget {
 }
 
 class NoticePage extends StatefulWidget {
-  const NoticePage({Key? key}) : super(key: key);
+  NoticePage(
+      {Key? key,
+      required this.pk,
+        required this.email,
+      required this.name,
+      required this.sex,
+      required this.phone})
+      : super(key: key);
+
+  int pk;
+  String email;
+  String name;
+  String sex;
+  String phone;
 
   @override
   State<NoticePage> createState() => _NoticePageState();
@@ -784,7 +925,14 @@ class _NoticePageState extends State<NoticePage> {
     var _pages = [_buildBottomAll(context), _buildBottomSearched(context)];
 
     return Column(
-      children: [_pages[_index], _buildButton(context, width, height)],
+      children: [
+        _pages[_index],
+        _buildButton(
+          context,
+          width,
+          height,
+        )
+      ],
     );
   }
 
@@ -831,8 +979,11 @@ class _NoticePageState extends State<NoticePage> {
                                 MaterialPageRoute(
                                     builder: (context) => NoticeDetailPage(
                                         pk: snapshot.data[index]['sn_id'],
+                                        email: widget.email,
+                                        sex: widget.sex,
+                                        phone: widget.phone,
                                         title: snapshot.data[index]['sn_title'],
-                                        creator: snapshot.data[index]
+                                        name: snapshot.data[index]
                                             ['sn_creator'],
                                         content: snapshot.data[index]
                                             ['sn_content'])));
@@ -888,14 +1039,15 @@ class _NoticePageState extends State<NoticePage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => NoticeDetailPage(
-                                        pk: snapshot.data[index]['_source']
-                                            ['noticeId'],
-                                        title: snapshot.data[index]['_source']
-                                            ['noticeTitle'],
-                                        creator: snapshot.data[index]['_source']
-                                            ['noticeCreator'],
-                                        content: snapshot.data[index]['_source']
-                                            ['noticeContent'])));
+                                        pk: snapshot.data[index]['sn_id'],
+                                        email: widget.email,
+                                        sex: widget.sex,
+                                        phone: widget.phone,
+                                        title: snapshot.data[index]['sn_title'],
+                                        name: snapshot.data[index]
+                                        ['sn_creator'],
+                                        content: snapshot.data[index]
+                                        ['sn_content'])));
                           },
                         ))
               ],
@@ -912,8 +1064,17 @@ class _NoticePageState extends State<NoticePage> {
       children: [
         ElevatedButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => NoticeCreatePage()));
+              if (widget.pk==-1){
+                _showDialog(context, "로그인 후 작성할 수 있습니다");
+              } else if(widget.name!="운영자"){
+                _showDialog(context, "권한이 없습니다.");
+              }else{
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => NoticeCreatePage(
+                            pk: widget.pk,email: widget.email ,name: widget.name, sex:widget.sex, phone:widget.phone)));
+              }
             },
             child: Text('공지사항 작성')),
         Row(
@@ -945,15 +1106,14 @@ class _NoticePageState extends State<NoticePage> {
             Container(
               width: width * 0.47,
               height: height * 0.05,
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blue, width: 2),
-                  borderRadius: BorderRadius.circular(5)),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 2.0),
-                child: TextField(
+                child: TextFormField(
                   controller: searchController,
                   keyboardType: TextInputType.text,
-                  decoration: InputDecoration(border: InputBorder.none),
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 5.0)),
                 ),
               ),
             ),
@@ -1013,4 +1173,21 @@ class _NoticePageState extends State<NoticePage> {
       return searchedData;
     }
   }
+}
+
+Future<dynamic> _showDialog(BuildContext context, String text) {
+  return showDialog(
+      context: context, builder: (BuildContext context) =>
+      AlertDialog(
+        elevation: 10.0,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(30))
+        ),
+        title: Text('오류'),
+        content: Text('$text'),
+        actions: [
+          ElevatedButton(onPressed: () =>
+              Navigator.of(context).pop(), child: Text('확인'))
+        ],
+      ));
 }

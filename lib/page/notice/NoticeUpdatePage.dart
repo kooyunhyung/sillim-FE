@@ -7,14 +7,20 @@ class NoticeUpdatePage extends StatefulWidget {
   NoticeUpdatePage(
       {Key? key,
       required this.pk,
+      required this.email,
+      required this.sex,
+      required this.phone,
       required this.title,
-      required this.creator,
+      required this.name,
       required this.content})
       : super(key: key);
 
   int pk;
+  String email;
+  String sex;
+  String phone;
   String title;
-  String creator;
+  String name;
   String content;
 
   @override
@@ -50,8 +56,11 @@ class _NoticeUpdatePageState extends State<NoticeUpdatePage> {
           width: width,
           height: height,
           pk: widget.pk,
+          email: widget.email,
+          sex: widget.sex,
+          phone: widget.phone,
           title: widget.title,
-          creator: widget.creator,
+          name: widget.name,
           content: widget.content),
     );
   }
@@ -63,16 +72,22 @@ class contents extends StatefulWidget {
       required this.width,
       required this.height,
       required this.pk,
+      required this.email,
+      required this.sex,
+      required this.phone,
       required this.title,
-      required this.creator,
+      required this.name,
       required this.content})
       : super(key: key);
 
   double width;
   double height;
   int pk;
+  String email;
+  String sex;
+  String phone;
   String title;
-  String creator;
+  String name;
   String content;
 
   @override
@@ -97,7 +112,7 @@ class _contentsState extends State<contents> {
       child: ListView(
         children: [
           _title(widget.width, widget.height),
-          _creator(widget.width, widget.height, widget.creator),
+          _creator(widget.width, widget.height, widget.name),
           _content(widget.width, widget.height),
           _button(widget.pk)
         ],
@@ -184,14 +199,15 @@ class _contentsState extends State<contents> {
               final response = await UserAPI(context: context).updateNotice(
                   pk: pk,
                   title: titleController.text,
-                  creator: widget.creator,
+                  creator: widget.name,
                   content: contentController.text);
 
-              final response2 = await UserAPI(context: context).insertElasticSearchNotice(
-                  id: pk,
-                  title: titleController.text,
-                  creator: widget.creator,
-                  content: contentController.text);
+              final response2 = await UserAPI(context: context)
+                  .insertElasticSearchNotice(
+                      id: pk,
+                      title: titleController.text,
+                      creator: widget.name,
+                      content: contentController.text);
 
               if (response['statusCode'] == 200) {
                 print(response['statusCode']);
@@ -200,7 +216,14 @@ class _contentsState extends State<contents> {
               }
 
               Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                  MaterialPageRoute(
+                      builder: (context) => MyHomePage(
+                            pk: widget.pk,
+                            email: widget.email,
+                            name: widget.name,
+                            sex: widget.sex,
+                            phone: widget.phone,
+                          )),
                   (route) => false);
             },
             child: Text('UPDATE')),

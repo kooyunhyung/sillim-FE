@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/page/board/BoardDetailPage.dart';
 
 import '../../api/user_api.dart';
 import '../../main.dart';
@@ -8,16 +9,21 @@ class BoardUpdatePage extends StatefulWidget {
       {Key? key,
       required this.pk,
       required this.title,
-      required this.creator,
+        required this.email,
+      required this.sex,
+      required this.phone,
+      required this.name,
       required this.content,
-        required this.like,
-        required this.bookmark
-      })
+      required this.like,
+      required this.bookmark})
       : super(key: key);
 
   int pk;
+  String email;
+  String sex;
+  String phone;
   String title;
-  String creator;
+  String name;
   String content;
   int like;
   bool bookmark;
@@ -55,12 +61,14 @@ class _BoardUpdatePageState extends State<BoardUpdatePage> {
           width: width,
           height: height,
           pk: widget.pk,
+          email: widget.email,
+          sex: widget.sex,
+          phone: widget.phone,
           title: widget.title,
-          creator: widget.creator,
+          name: widget.name,
           content: widget.content,
           like: widget.like,
-        bookmark: widget.bookmark
-      ),
+          bookmark: widget.bookmark),
     );
   }
 }
@@ -71,19 +79,24 @@ class contents extends StatefulWidget {
       required this.width,
       required this.height,
       required this.pk,
+        required this.email,
+        required this.sex,
+        required this.phone,
       required this.title,
-      required this.creator,
+      required this.name,
       required this.content,
       required this.like,
-        required this.bookmark
-      })
+      required this.bookmark})
       : super(key: key);
 
   double width;
   double height;
   int pk;
+  String email;
+  String sex;
+  String phone;
   String title;
-  String creator;
+  String name;
   String content;
   int like;
   bool bookmark;
@@ -110,7 +123,7 @@ class _contentsState extends State<contents> {
       child: ListView(
         children: [
           _title(widget.width, widget.height),
-          _creator(widget.width, widget.height, widget.creator),
+          _creator(widget.width, widget.height, widget.name),
           _content(widget.width, widget.height),
           _button(widget.pk)
         ],
@@ -197,20 +210,19 @@ class _contentsState extends State<contents> {
               final response = await UserAPI(context: context).updateBoard(
                   pk: pk,
                   title: titleController.text,
-                  creator: widget.creator,
+                  creator: widget.name,
                   content: contentController.text,
                   like: widget.like,
-                  bookmark: widget.bookmark
-              );
+                  bookmark: widget.bookmark);
 
-              final response2 = await UserAPI(context: context).insertElasticSearchBoard(
-                  id: pk,
-                  title: titleController.text,
-                  creator: widget.creator,
-                  content: contentController.text,
-                  like: widget.like,
-                  bookmark: widget.bookmark
-              );
+              final response2 = await UserAPI(context: context)
+                  .insertElasticSearchBoard(
+                      id: pk,
+                      title: titleController.text,
+                      creator: widget.name,
+                      content: contentController.text,
+                      like: widget.like,
+                      bookmark: widget.bookmark);
 
               if (response['statusCode'] == 200) {
                 print(response['statusCode']);
@@ -219,7 +231,17 @@ class _contentsState extends State<contents> {
               }
 
               Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                  MaterialPageRoute(
+                      builder: (context) => BoardDetailPage(
+                          pk: widget.pk,
+                          email: widget.email,
+                          name: widget.name,
+                          sex: widget.sex,
+                          phone: widget.phone,
+                          title: widget.title,
+                          content: widget.content,
+                          like: widget.like,
+                          bookmark: widget.bookmark)),
                   (route) => false);
             },
             child: Text('UPDATE')),

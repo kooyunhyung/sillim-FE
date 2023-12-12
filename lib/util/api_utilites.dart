@@ -7,8 +7,8 @@ class APIConfig {
   APIConfig(this.host, {required this.version});
 }
 
-final host = APIConfig('https://5faf-122-45-204-107.ngrok-free.app', version: 1);     // 8080 port
-final host2 = APIConfig('https://c38c-122-45-204-107.ngrok-free.app', version: 1);    // 9200 port
+final host = APIConfig('https://3cb4-122-45-204-107.ngrok-free.app', version: 1);     // 8080 port
+final host2 = APIConfig('https://3343-122-45-204-107.ngrok-free.app', version: 1);    // 9200 port
 
 
 String getQueryString(Map params,
@@ -37,7 +37,7 @@ String getQueryString(Map params,
 String createUri(String path, Map<String, dynamic> param) {
   final params = param != null ? getQueryString(param) : '';
 
-  //이 부분도 필요하시다면 변경하시고 사용하시면 됩니다.
+  //
   if (path.substring(0,4)=='sill' || path.substring(0,4)=='apis'){
     print('${host.host}/$path?${params.substring(min(params.length, 1))}');
     return '${host.host}/$path?${params.substring(min(params.length, 1))}';

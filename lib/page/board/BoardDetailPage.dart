@@ -9,16 +9,22 @@ class BoardDetailPage extends StatefulWidget {
   BoardDetailPage(
       {Key? key,
       required this.pk,
+        required this.email,
+        required this.name,
+        required this.sex,
+        required this.phone,
       required this.title,
-      required this.creator,
       required this.content,
       required this.like,
       required this.bookmark})
       : super(key: key);
 
   int pk;
+  String email;
+  String name;
+  String sex;
+  String phone;
   String title;
-  String creator;
   String content;
   int like;
   bool bookmark;
@@ -40,7 +46,7 @@ class _BoardDetailPageState extends State<BoardDetailPage> {
           return;
         }
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => MyHomePage()));
+            context, MaterialPageRoute(builder: (context) => MyHomePage(pk:widget.pk,email: widget.email, name:widget.name, sex:widget.sex, phone: widget.phone,)));
       },
       child: Scaffold(
         appBar: PreferredSize(
@@ -53,7 +59,7 @@ class _BoardDetailPageState extends State<BoardDetailPage> {
                 color: Colors.black,
               ),
               onPressed: () => Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => MyHomePage())),
+                  MaterialPageRoute(builder: (context) => MyHomePage(pk:widget.pk,email: widget.email, name:widget.name, sex:widget.sex, phone: widget.phone,))),
             ),
             title: Text(
               '게시판',
@@ -68,7 +74,10 @@ class _BoardDetailPageState extends State<BoardDetailPage> {
             height: height,
             title: widget.title,
             pk: widget.pk,
-            creator: widget.creator,
+            name: widget.name,
+            email: widget.email,
+            sex: widget.sex,
+            phone: widget.phone,
             content: widget.content,
             like: widget.like,
             bookmark: widget.bookmark),
@@ -83,8 +92,11 @@ class contents extends StatefulWidget {
       required this.width,
       required this.height,
       required this.pk,
+        required this.name,
+        required this. email,
+        required this.sex,
+        required this.phone,
       required this.title,
-      required this.creator,
       required this.content,
       required this.like,
       required this.bookmark})
@@ -93,8 +105,11 @@ class contents extends StatefulWidget {
   double width;
   double height;
   int pk;
+  String email;
+  String sex;
+  String phone;
   String title;
-  String creator;
+  String name;
   String content;
   int like;
   bool bookmark;
@@ -121,7 +136,7 @@ class _contentsState extends State<contents> {
       child: ListView(
         children: [
           _title(widget.width, widget.height, widget.title),
-          _creator(widget.width, widget.height, widget.creator),
+          _creator(widget.width, widget.height, widget.name),
           _content(widget.width, widget.height, widget.content),
           _like_bookmark(widget.width, widget.height),
           _button(widget.pk)
@@ -209,7 +224,7 @@ class _contentsState extends State<contents> {
                             await UserAPI(context: context).updateBoard(
                           pk: widget.pk,
                           title: widget.title,
-                          creator: widget.creator,
+                          creator: widget.name,
                           content: widget.content,
                           like: newLikeValue,
                           bookmark: bookmarkTmp,
@@ -219,7 +234,7 @@ class _contentsState extends State<contents> {
                             .insertElasticSearchBoard(
                           id: widget.pk,
                           title: widget.title,
-                          creator: widget.creator,
+                          creator: widget.name,
                           content: widget.content,
                           like: newLikeValue,
                           bookmark: bookmarkTmp,
@@ -259,7 +274,7 @@ class _contentsState extends State<contents> {
                                 await UserAPI(context: context).updateBoard(
                               pk: widget.pk,
                               title: widget.title,
-                              creator: widget.creator,
+                              creator: widget.name,
                               content: widget.content,
                               like: likeTmp,
                               bookmark: newBookmarkValue,
@@ -269,7 +284,7 @@ class _contentsState extends State<contents> {
                             await UserAPI(context: context).insertElasticSearchBoard(
                               id: widget.pk,
                               title: widget.title,
-                              creator: widget.creator,
+                              creator: widget.name,
                               content: widget.content,
                               like: likeTmp,
                               bookmark: newBookmarkValue,
@@ -302,7 +317,7 @@ class _contentsState extends State<contents> {
                                 await UserAPI(context: context).updateBoard(
                               pk: widget.pk,
                               title: widget.title,
-                              creator: widget.creator,
+                              creator: widget.name,
                               content: widget.content,
                               like: likeTmp,
                               bookmark: newBookmarkValue,
@@ -312,7 +327,7 @@ class _contentsState extends State<contents> {
                             await UserAPI(context: context).insertElasticSearchBoard(
                               id: widget.pk,
                               title: widget.title,
-                              creator: widget.creator,
+                              creator: widget.name,
                               content: widget.content,
                               like: likeTmp,
                               bookmark: newBookmarkValue,
@@ -353,8 +368,11 @@ class _contentsState extends State<contents> {
                   MaterialPageRoute(
                       builder: (context) => BoardUpdatePage(
                           pk: pk,
+                          email: widget.email,
+                          sex: widget.sex,
+                          phone: widget.phone,
                           title: widget.title,
-                          creator: widget.creator,
+                          name: widget.name,
                           content: widget.content,
                           like: likeTmp,
                           bookmark: bookmarkTmp)));
@@ -373,7 +391,7 @@ class _contentsState extends State<contents> {
                 }
 
                 Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                  MaterialPageRoute(builder: (context) => MyHomePage(pk:widget.pk,email: widget.email, name:widget.name, sex:widget.sex, phone: widget.phone,)),
                       (route) => false,
                 );
               } catch (e) {

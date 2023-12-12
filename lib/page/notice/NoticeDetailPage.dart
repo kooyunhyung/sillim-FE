@@ -8,14 +8,20 @@ class NoticeDetailPage extends StatefulWidget {
   NoticeDetailPage(
       {Key? key,
       required this.pk,
+      required this.email,
+      required this.sex,
+      required this.phone,
       required this.title,
-      required this.creator,
+      required this.name,
       required this.content})
       : super(key: key);
 
   int pk;
+  String email;
+  String sex;
+  String phone;
   String title;
-  String creator;
+  String name;
   String content;
 
   @override
@@ -39,7 +45,15 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
               color: Colors.black,
             ),
             onPressed: () => Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => MyHomePage())),
+                context,
+                MaterialPageRoute(
+                    builder: (context) => MyHomePage(
+                          pk: widget.pk,
+                          email: widget.email,
+                          name: widget.name,
+                          sex: widget.sex,
+                          phone: widget.phone,
+                        ))),
           ),
           title: Text(
             '공지사항',
@@ -53,7 +67,10 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
           height: height,
           title: widget.title,
           pk: widget.pk,
-          creator: widget.creator,
+          email: widget.email,
+          sex: widget.sex,
+          phone: widget.phone,
+          name: widget.name,
           content: widget.content),
     );
   }
@@ -65,16 +82,22 @@ class contents extends StatefulWidget {
       required this.width,
       required this.height,
       required this.pk,
+      required this.email,
+      required this.sex,
+      required this.phone,
       required this.title,
-      required this.creator,
+      required this.name,
       required this.content})
       : super(key: key);
 
   double width;
   double height;
   int pk;
+  String email;
+  String sex;
+  String phone;
   String title;
-  String creator;
+  String name;
   String content;
 
   @override
@@ -89,7 +112,7 @@ class _contentsState extends State<contents> {
       child: ListView(
         children: [
           _title(widget.width, widget.height, widget.title),
-          _creator(widget.width, widget.height, widget.creator),
+          _creator(widget.width, widget.height, widget.name),
           _content(widget.width, widget.height, widget.content),
           _button(widget.pk)
         ],
@@ -169,8 +192,11 @@ class _contentsState extends State<contents> {
                   MaterialPageRoute(
                       builder: (context) => NoticeUpdatePage(
                             pk: pk,
+                            email: widget.email,
+                            sex: widget.sex,
+                            phone: widget.phone,
                             title: widget.title,
-                            creator: widget.creator,
+                            name: widget.name,
                             content: widget.content,
                           )));
             },
@@ -189,7 +215,14 @@ class _contentsState extends State<contents> {
               }
 
               Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                  MaterialPageRoute(
+                      builder: (context) => MyHomePage(
+                            pk: widget.pk,
+                            email: widget.email,
+                            name: widget.name,
+                            sex: widget.sex,
+                            phone: widget.phone,
+                          )),
                   (route) => false);
             },
             child: Text('DELETE')),

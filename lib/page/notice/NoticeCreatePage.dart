@@ -4,7 +4,20 @@ import '../../api/user_api.dart';
 import '../../main.dart';
 
 class NoticeCreatePage extends StatefulWidget {
-  const NoticeCreatePage({Key? key}) : super(key: key);
+  NoticeCreatePage(
+      {Key? key,
+      required this.pk,
+      required this.email,
+      required this.name,
+      required this.sex,
+      required this.phone})
+      : super(key: key);
+
+  int pk;
+  String email;
+  String name;
+  String sex;
+  String phone;
 
   @override
   _NoticeCreatePageState createState() => _NoticeCreatePageState();
@@ -35,15 +48,35 @@ class _NoticeCreatePageState extends State<NoticeCreatePage> {
           centerTitle: true,
         ),
       ),
-      body: contents(width: width, height: height),
+      body: contents(
+          pk: widget.pk,
+          email: widget.email,
+          name: widget.name,
+          sex: widget.sex,
+          phone: widget.phone,
+          width: width,
+          height: height),
     );
   }
 }
 
 class contents extends StatefulWidget {
-  contents({Key? key, required this.width, required this.height})
+  contents(
+      {Key? key,
+      required this.pk,
+      required this.email,
+      required this.name,
+      required this.sex,
+      required this.phone,
+      required this.width,
+      required this.height})
       : super(key: key);
 
+  int pk;
+  String email;
+  String name;
+  String sex;
+  String phone;
   double width;
   double height;
 
@@ -153,21 +186,31 @@ class _contentsState extends State<contents> {
       children: [
         ElevatedButton(
             onPressed: () async {
-              final response =
-              await UserAPI(context: context).createNotice(
+              final response = await UserAPI(context: context).createNotice(
                 title: title.text,
                 creator: creator.text,
                 content: content.text,
               );
 
-              int id=response["obj"]["sn_id"];
+              int id = response["obj"]["sn_id"];
 
-              final response2=
-              await UserAPI(context: context).insertElasticSearchNotice(id:id,title: title.text, creator: creator.text, content: content.text);
+              final response2 = await UserAPI(context: context)
+                  .insertElasticSearchNotice(
+                      id: id,
+                      title: title.text,
+                      creator: creator.text,
+                      content: content.text);
 
               Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
-                      (route) => false);
+                  MaterialPageRoute(
+                      builder: (context) => MyHomePage(
+                            pk: widget.pk,
+                            email: widget.email,
+                            name: widget.name,
+                            sex: widget.sex,
+                            phone: widget.phone,
+                          )),
+                  (route) => false);
             },
             child: Text('CREATE')),
       ],

@@ -10,33 +10,34 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("로그인"),),
+      appBar: AppBar(
+        title: Text("로그인"),
+      ),
       body: _buildLogin(),
     );
   }
-  
+
   Future<dynamic> _showDialog(BuildContext context) {
     return showDialog(
-        context: context, builder: (BuildContext context) =>
-        AlertDialog(
-          elevation: 10.0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(30))
-          ),
-          title: Text('로그인 실패'),
-          content: Text(' 이메일 또는 비밀번호가 일치하지 않습니다.'),
-          actions: [
-            ElevatedButton(onPressed: () =>
-                Navigator.of(context).pop(), child: Text('확인'))
-          ],
-        ));
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              elevation: 10.0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30))),
+              title: Text('로그인 실패'),
+              content: Text(' 이메일 또는 비밀번호가 일치하지 않습니다.'),
+              actions: [
+                ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('확인'))
+              ],
+            ));
   }
 
   _buildLogin() {
@@ -54,7 +55,9 @@ class _LoginPageState extends State<LoginPage> {
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
               ),
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Password',
@@ -64,22 +67,39 @@ class _LoginPageState extends State<LoginPage> {
                 controller: passwordController,
                 obscureText: true,
               ),
-              SizedBox(height: 10,),
-              ElevatedButton(onPressed: () async {
-                dynamic response = await UserAPI(context: context).userLogin(
-                    email: emailController.text,
-                    password: passwordController.text);
-                if (response["statusCode"] == 200) {
-                  Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => MyHomePage()),
+              SizedBox(
+                height: 10,
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                    dynamic response = await UserAPI(context: context)
+                        .userLogin(
+                            email: emailController.text,
+                            password: passwordController.text);
+                    if (response["statusCode"] == 200) {
+                      int userId = response['obj']['su_id'];
+                      String userEmail = response['obj']['su_email'];
+                      String userName = response['obj']['su_name'];
+                      String userSex = response['obj']['su_sex'];
+                      String userPhone = response['obj']['su_phone'];
+
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => MyHomePage(
+                                    pk: userId,
+                                    email: userEmail,
+                                    name: userName,
+                                    sex: userSex,
+                                    phone: userPhone,
+                                  )),
                           (route) => false);
-                } else {
-                  _showDialog(context);
-                }
-              }, child: Text('로그인'))
+                    } else {
+                      _showDialog(context);
+                    }
+                  },
+                  child: Text('로그인'))
             ],
-          )
-      ),
+          )),
     );
   }
 }

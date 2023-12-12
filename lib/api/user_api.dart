@@ -8,11 +8,28 @@ class UserAPI extends CommonAPI {
 
   // 유저 로그인
   Future<Map<String, dynamic>> userLogin(
-      {required String email,
-        required String password}) async {
+      {required String email, required String password}) async {
     final response = await post('sillim/user/login', body: {
       "su_email": email,
       "su_password": password,
+    }, params: {}, headers: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
+  // 유저 생성
+  Future<Map<String, dynamic>> createUser(
+      {required String email,
+      required String password,
+      required String name,
+      required String sex,
+      required String phone}) async {
+    final response = await post('sillim/user', body: {
+      "su_email": email,
+      "su_password": password,
+      "su_name": name,
+      "su_sex": sex,
+      "su_phone": phone
     }, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
@@ -56,7 +73,8 @@ class UserAPI extends CommonAPI {
   }
 
   // elastic search 로부터 공지 조회 (제목별)
-  Future<dynamic> readElasticSearchNoticesByTitle({required String searchText}) async {
+  Future<dynamic> readElasticSearchNoticesByTitle(
+      {required String searchText}) async {
     final response = await getElastic('notices_index/_search', body: {
       "query": {
         "bool": {
@@ -101,15 +119,12 @@ class UserAPI extends CommonAPI {
       {required String searchText}) async {
     final response = await getElastic('notices_index/_search', body: {
       "query": {
-        "match": {
-          "noticeContent": searchText
-        }
+        "match": {"noticeContent": searchText}
       }
     }, headers: {}, params: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
   }
-
 
   // 공지 조회 (단건)
   Future<dynamic> readNotice(int pk) async {
@@ -236,9 +251,7 @@ class UserAPI extends CommonAPI {
       {required String searchText}) async {
     final response = await getElastic('boards_index/_search', body: {
       "query": {
-        "match": {
-          "boardContent": searchText
-        }
+        "match": {"boardContent": searchText}
       }
     }, headers: {}, params: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));

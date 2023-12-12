@@ -4,7 +4,13 @@ import '../../api/user_api.dart';
 import '../../main.dart';
 
 class BoardCreatePage extends StatefulWidget {
-  const BoardCreatePage({Key? key}) : super(key: key);
+  BoardCreatePage({Key? key,required this.pk, required this.email, required this.name, required this.sex, required this.phone}) : super(key: key);
+
+  int pk;
+  String email;
+  String name;
+  String sex;
+  String phone;
 
   @override
   _BoardCreatePageState createState() => _BoardCreatePageState();
@@ -35,15 +41,20 @@ class _BoardCreatePageState extends State<BoardCreatePage> {
           centerTitle: true,
         ),
       ),
-      body: contents(width: width, height: height),
+      body: contents(pk:widget.pk, email:widget.email, name: widget.name, sex:widget.sex, phone:widget.phone, width: width, height: height),
     );
   }
 }
 
 class contents extends StatefulWidget {
-  contents({Key? key, required this.width, required this.height})
+  contents({Key? key, required this.pk, required this.email, required this.name, required this.sex, required this.phone, required this.width, required this.height})
       : super(key: key);
 
+  int pk;
+  String email;
+  String name;
+  String sex;
+  String phone;
   double width;
   double height;
 
@@ -166,7 +177,7 @@ class _contentsState extends State<contents> {
               await UserAPI(context: context).insertElasticSearchBoard(id:id,title: title.text, creator: creator.text, content: content.text, like: 0, bookmark: false);
 
               Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                  MaterialPageRoute(builder: (context) => MyHomePage(pk: widget.pk, email: widget.email, name: widget.name, sex:widget.sex, phone: widget.phone,)),
                       (route) => false);
             },
             child: Text('CREATE')),
