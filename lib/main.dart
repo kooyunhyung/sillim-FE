@@ -72,6 +72,12 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   widget.pk=-1;
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,71 +92,130 @@ class _MyHomePageState extends State<MyHomePage> {
                       bottomRight: Radius.circular(15)),
                   color: Colors.indigo,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.account_circle_sharp,
-                      color: Colors.white,
-                      size: 73,
-                    ),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoginPage()));
-                          },
-                          child: Row(
+                child: widget.pk == -1
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.account_circle_sharp,
+                            color: Colors.white,
+                            size: 73,
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => LoginPage()));
+                                },
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.power_settings_new,
+                                      color: Colors.white,
+                                      size: 25,
+                                    ),
+                                    Text(
+                                      '로그인',
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => JoinPage()));
+                                },
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.arrow_forward,
+                                      color: Colors.white,
+                                      size: 25,
+                                    ),
+                                    Text(
+                                      '회원가입',
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Icon(
-                                Icons.power_settings_new,
+                                Icons.account_circle_sharp,
                                 color: Colors.white,
-                                size: 25,
+                                size: 73,
+                              ),
+                              GestureDetector(
+                                onTap: (){
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                      MaterialPageRoute(
+                                          builder: (context) => MyHomePage(
+                                            pk: -1,
+                                            email: "",
+                                            name: "",
+                                            sex: "",
+                                            phone: "",
+                                          )),
+                                          (route) => false);
+                                },
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.logout, size: 20, color: Colors.white,),
+                                    Text(
+                                      '로그아웃',
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${widget.name}님 환영합니다.',
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.white),
                               ),
                               Text(
-                                '로그인',
+                                '${widget.email}',
                                 style: TextStyle(
-                                    fontSize: 20, color: Colors.white),
+                                    fontSize: 15, color: Colors.white),
                               ),
                             ],
                           ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => JoinPage()));
-                          },
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.arrow_forward,
-                                color: Colors.white,
-                                size: 25,
-                              ),
-                              Text(
-                                '회원가입',
-                                style: TextStyle(
-                                    fontSize: 20, color: Colors.white),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
-                )),
+                        ],
+                      )),
             ListTile(
               leading: Icon(Icons.house),
               title: const Text('Home'),
@@ -213,7 +278,7 @@ class frame extends StatefulWidget {
   frame(
       {Key? key,
       required this.pk,
-        required this.email,
+      required this.email,
       required this.name,
       required this.sex,
       required this.phone})
@@ -365,7 +430,7 @@ class BoardPage extends StatefulWidget {
   BoardPage(
       {Key? key,
       required this.pk,
-        required this.email,
+      required this.email,
       required this.name,
       required this.sex,
       required this.phone})
@@ -545,21 +610,29 @@ class _BoardPageState extends State<BoardPage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ElevatedButton(
               onPressed: () {
-                if (widget.pk==-1 ){
+                if (widget.pk == -1) {
                   _showDialog(context, '로그인 후 작성할 수 있습니다');
-                } else{
+                } else {
+                  print("뭐길래?");
+                  print(widget.pk);
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              BoardCreatePage(pk: widget.pk, email: widget.email, name: widget.name, sex: widget.sex, phone: widget.phone,)));
+                          builder: (context) => BoardCreatePage(
+                                pk: widget.pk,
+                                email: widget.email,
+                                name: widget.name,
+                                sex: widget.sex,
+                                phone: widget.phone,
+                              )));
                 }
               },
               child: Text('게시글 작성')),
+          SizedBox(height: 5,),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -595,7 +668,9 @@ class _BoardPageState extends State<BoardPage> {
                   child: TextFormField(
                     controller: searchController,
                     keyboardType: TextInputType.text,
-                    decoration: InputDecoration(border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 5.0)),
                   ),
                 ),
               ),
@@ -662,7 +737,7 @@ class PopularBoardPage extends StatefulWidget {
   PopularBoardPage(
       {Key? key,
       required this.pk,
-        required this.email,
+      required this.email,
       required this.name,
       required this.sex,
       required this.phone})
@@ -756,8 +831,16 @@ class _PopularBoardPageState extends State<PopularBoardPage> {
       children: [
         ElevatedButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => BoardCreatePage(pk: widget.pk, email: widget.email, name:widget.name, sex:widget.sex, phone: widget.phone,)));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BoardCreatePage(
+                            pk: widget.pk,
+                            email: widget.email,
+                            name: widget.name,
+                            sex: widget.sex,
+                            phone: widget.phone,
+                          )));
             },
             child: Text('게시글 작성')),
       ],
@@ -775,7 +858,7 @@ class BookMarkedPage extends StatefulWidget {
   BookMarkedPage(
       {Key? key,
       required this.pk,
-        required this.email,
+      required this.email,
       required this.name,
       required this.sex,
       required this.phone})
@@ -869,8 +952,16 @@ class _BookMarkedPageState extends State<BookMarkedPage> {
       children: [
         ElevatedButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => BoardCreatePage(pk: widget.pk,email: widget.email, name:widget.name, sex:widget.sex, phone: widget.phone,)));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BoardCreatePage(
+                            pk: widget.pk,
+                            email: widget.email,
+                            name: widget.name,
+                            sex: widget.sex,
+                            phone: widget.phone,
+                          )));
             },
             child: Text('게시글 작성')),
       ],
@@ -888,7 +979,7 @@ class NoticePage extends StatefulWidget {
   NoticePage(
       {Key? key,
       required this.pk,
-        required this.email,
+      required this.email,
       required this.name,
       required this.sex,
       required this.phone})
@@ -1045,9 +1136,9 @@ class _NoticePageState extends State<NoticePage> {
                                         phone: widget.phone,
                                         title: snapshot.data[index]['sn_title'],
                                         name: snapshot.data[index]
-                                        ['sn_creator'],
+                                            ['sn_creator'],
                                         content: snapshot.data[index]
-                                        ['sn_content'])));
+                                            ['sn_content'])));
                           },
                         ))
               ],
@@ -1060,23 +1151,28 @@ class _NoticePageState extends State<NoticePage> {
 
   Widget _buildButton(context, width, height) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ElevatedButton(
             onPressed: () {
-              if (widget.pk==-1){
+              if (widget.pk == -1) {
                 _showDialog(context, "로그인 후 작성할 수 있습니다");
-              } else if(widget.name!="운영자"){
+              } else if (widget.name != "운영자") {
                 _showDialog(context, "권한이 없습니다.");
-              }else{
+              } else {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => NoticeCreatePage(
-                            pk: widget.pk,email: widget.email ,name: widget.name, sex:widget.sex, phone:widget.phone)));
+                            pk: widget.pk,
+                            email: widget.email,
+                            name: widget.name,
+                            sex: widget.sex,
+                            phone: widget.phone)));
               }
             },
             child: Text('공지사항 작성')),
+        SizedBox(height: 5,),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -1177,17 +1273,17 @@ class _NoticePageState extends State<NoticePage> {
 
 Future<dynamic> _showDialog(BuildContext context, String text) {
   return showDialog(
-      context: context, builder: (BuildContext context) =>
-      AlertDialog(
-        elevation: 10.0,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(30))
-        ),
-        title: Text('오류'),
-        content: Text('$text'),
-        actions: [
-          ElevatedButton(onPressed: () =>
-              Navigator.of(context).pop(), child: Text('확인'))
-        ],
-      ));
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+            elevation: 10.0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(30))),
+            title: Text('오류'),
+            content: Text('$text'),
+            actions: [
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('확인'))
+            ],
+          ));
 }
