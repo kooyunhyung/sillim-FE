@@ -9,10 +9,10 @@ class BoardDetailPage extends StatefulWidget {
   BoardDetailPage(
       {Key? key,
       required this.pk,
-        required this.email,
-        required this.name,
-        required this.sex,
-        required this.phone,
+      required this.email,
+      required this.name,
+      required this.sex,
+      required this.phone,
       required this.title,
       required this.content,
       required this.like,
@@ -46,7 +46,15 @@ class _BoardDetailPageState extends State<BoardDetailPage> {
           return;
         }
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => MyHomePage(pk:widget.pk,email: widget.email, name:widget.name, sex:widget.sex, phone: widget.phone,)));
+            context,
+            MaterialPageRoute(
+                builder: (context) => MyHomePage(
+                      pk: widget.pk,
+                      email: widget.email,
+                      name: widget.name,
+                      sex: widget.sex,
+                      phone: widget.phone,
+                    )));
       },
       child: Scaffold(
         appBar: PreferredSize(
@@ -58,8 +66,16 @@ class _BoardDetailPageState extends State<BoardDetailPage> {
                 Icons.arrow_back,
                 color: Colors.black,
               ),
-              onPressed: () => Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => MyHomePage(pk:widget.pk,email: widget.email, name:widget.name, sex:widget.sex, phone: widget.phone,))),
+              onPressed: () => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MyHomePage(
+                            pk: widget.pk,
+                            email: widget.email,
+                            name: widget.name,
+                            sex: widget.sex,
+                            phone: widget.phone,
+                          ))),
             ),
             title: Text(
               '게시판',
@@ -92,10 +108,10 @@ class contents extends StatefulWidget {
       required this.width,
       required this.height,
       required this.pk,
-        required this.name,
-        required this. email,
-        required this.sex,
-        required this.phone,
+      required this.name,
+      required this.email,
+      required this.sex,
+      required this.phone,
       required this.title,
       required this.content,
       required this.like,
@@ -122,10 +138,13 @@ class _contentsState extends State<contents> {
   var likeTmp;
   var bookmarkTmp;
 
+  var commentWindow;
+
   @override
   void initState() {
     likeTmp = widget.like;
     bookmarkTmp = widget.bookmark;
+    commentWindow = true;
     super.initState();
   }
 
@@ -139,7 +158,8 @@ class _contentsState extends State<contents> {
           _creator(widget.width, widget.height, widget.name),
           _content(widget.width, widget.height, widget.content),
           _like_bookmark(widget.width, widget.height),
-          _button(widget.pk)
+          _button(widget.pk),
+          _comment(widget.pk)
         ],
       ),
     );
@@ -280,8 +300,8 @@ class _contentsState extends State<contents> {
                               bookmark: newBookmarkValue,
                             );
 
-                            final response2 =
-                            await UserAPI(context: context).insertElasticSearchBoard(
+                            final response2 = await UserAPI(context: context)
+                                .insertElasticSearchBoard(
                               id: widget.pk,
                               title: widget.title,
                               creator: widget.name,
@@ -323,8 +343,8 @@ class _contentsState extends State<contents> {
                               bookmark: newBookmarkValue,
                             );
 
-                            final response2 =
-                            await UserAPI(context: context).insertElasticSearchBoard(
+                            final response2 = await UserAPI(context: context)
+                                .insertElasticSearchBoard(
                               id: widget.pk,
                               title: widget.title,
                               creator: widget.name,
@@ -381,7 +401,8 @@ class _contentsState extends State<contents> {
         ElevatedButton(
             onPressed: () async {
               try {
-                final response = await UserAPI(context: context).deleteBoard(pk: pk);
+                final response =
+                    await UserAPI(context: context).deleteBoard(pk: pk);
                 UserAPI(context: context).deleteElasticSearchBoard(pk: pk);
 
                 if (response['statusCode'] == 200) {
@@ -391,8 +412,15 @@ class _contentsState extends State<contents> {
                 }
 
                 Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => MyHomePage(pk:widget.pk,email: widget.email, name:widget.name, sex:widget.sex, phone: widget.phone,)),
-                      (route) => false,
+                  MaterialPageRoute(
+                      builder: (context) => MyHomePage(
+                            pk: widget.pk,
+                            email: widget.email,
+                            name: widget.name,
+                            sex: widget.sex,
+                            phone: widget.phone,
+                          )),
+                  (route) => false,
                 );
               } catch (e) {
                 print('Error: $e');
@@ -402,5 +430,104 @@ class _contentsState extends State<contents> {
             child: Text('DELETE')),
       ],
     );
+  }
+
+  Widget _comment(pk) {
+    return commentWindow
+        ? Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  commentWindow = !commentWindow;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                width: widget.width,
+                height: widget.height * 0.05,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey, width: 1),
+                    borderRadius: BorderRadius.circular(5)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('댓글()'),
+                    Icon(Icons.keyboard_arrow_down_rounded)
+                  ],
+                ),
+              ),
+            ),
+          )
+        : Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      commentWindow = !commentWindow;
+                    });
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    width: widget.width,
+                    height: widget.height * 0.05,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey, width: 1),
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('댓글()'),
+                        Icon(Icons.keyboard_arrow_up_rounded)
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              FutureBuilder(
+                future: _fetchBoardComments(context,pk),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData == false) {
+                    return Container(
+                        child: Center(
+                            child: Container(
+                                width: 50,
+                                height: 50,
+                                child: CircularProgressIndicator())));
+                  } else if (snapshot.hasError) {
+                    return Container(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: TextStyle(fontSize: 15),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return Column(
+                      children: [
+                        ...List.generate(
+                            snapshot.data.length,
+                                (index) => ListTile(
+                              leading: Text('${snapshot.data[index]['sbc_creator']}'),
+                              title: Text('${snapshot.data[index]['sbc_content']}'),
+                              onTap: () {},
+                            ))
+                      ],
+                    );
+                  }
+                },
+              )
+            ],
+          );
+  }
+
+  Future<dynamic> _fetchBoardComments(context,pk) async {
+    dynamic boardCommentList = await UserAPI(context: context).readBoardComments(pk:pk);
+    print(boardCommentList);
+    return boardCommentList;
   }
 }

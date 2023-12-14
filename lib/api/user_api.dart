@@ -311,4 +311,42 @@ class UserAPI extends CommonAPI {
   void deleteElasticSearchBoard({required pk}) {
     delete('apis2/delete/$pk', body: {}, params: {}, headers: {});
   }
+
+  // 게시글 댓글 생성
+
+  Future<Map<String, dynamic>> createBoardComment(
+      {required String creator,
+      required String content,
+      required int boardId,
+        required String boardTitle,
+        required String boardCreator,
+        required String boardContent,
+        required int boardLike,
+        required bool boardBookmark,
+        required dynamic boardCommentList
+      }) async {
+    final response = await post('sillim/board/comment', body: {
+      "sbc_creator": creator,
+      "sbc_content": content,
+      "sbc_board": {
+        "sb_id": 5,
+        "sb_title": boardTitle,
+        "sb_creator": boardCreator,
+        "sb_content": boardContent,
+        "sb_like": boardLike,
+        "sb_bookmark": boardBookmark,
+        "sb_comment_list": boardCommentList
+      }
+    }, params: {}, headers: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
+
+  // 게시글 댓글 조회
+  Future<dynamic> readBoardComments({required pk}) async {
+    final response =
+        await get('sillim/board/comment/$pk', headers: {}, params: {});
+    final result = jsonDecode(utf8.decode(response.bodyBytes));
+    return result;
+  }
 }
