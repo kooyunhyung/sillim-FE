@@ -5,25 +5,29 @@ import '../../api/user_api.dart';
 import '../../main.dart';
 
 class BoardUpdatePage extends StatefulWidget {
-  BoardUpdatePage(
-      {Key? key,
-      required this.pk,
-      required this.title,
-        required this.email,
-      required this.sex,
-      required this.phone,
-      required this.name,
-      required this.content,
-      required this.like,
-      required this.bookmark})
-      : super(key: key);
+  BoardUpdatePage({
+    Key? key,
+    required this.pk,
+    required this.boardPk,
+    required this.title,
+    required this.email,
+    required this.sex,
+    required this.phone,
+    required this.name,
+    required this.creator,
+    required this.content,
+    required this.like,
+    required this.bookmark,
+  }) : super(key: key);
 
   int pk;
+  int boardPk;
   String email;
   String sex;
   String phone;
   String title;
   String name;
+  String creator;
   String content;
   int like;
   bool bookmark;
@@ -61,6 +65,7 @@ class _BoardUpdatePageState extends State<BoardUpdatePage> {
           width: width,
           height: height,
           pk: widget.pk,
+          boardPk: widget.boardPk,
           email: widget.email,
           sex: widget.sex,
           phone: widget.phone,
@@ -68,7 +73,8 @@ class _BoardUpdatePageState extends State<BoardUpdatePage> {
           name: widget.name,
           content: widget.content,
           like: widget.like,
-          bookmark: widget.bookmark),
+          bookmark: widget.bookmark,
+          creator: widget.creator),
     );
   }
 }
@@ -79,24 +85,28 @@ class contents extends StatefulWidget {
       required this.width,
       required this.height,
       required this.pk,
-        required this.email,
-        required this.sex,
-        required this.phone,
+      required this.boardPk,
+      required this.email,
+      required this.sex,
+      required this.phone,
       required this.title,
       required this.name,
       required this.content,
       required this.like,
-      required this.bookmark})
+      required this.bookmark,
+      required this.creator})
       : super(key: key);
 
   double width;
   double height;
   int pk;
+  int boardPk;
   String email;
   String sex;
   String phone;
   String title;
   String name;
+  String creator;
   String content;
   int like;
   bool bookmark;
@@ -123,9 +133,9 @@ class _contentsState extends State<contents> {
       child: ListView(
         children: [
           _title(widget.width, widget.height),
-          _creator(widget.width, widget.height, widget.name),
+          _creator(widget.width, widget.height, widget.creator),
           _content(widget.width, widget.height),
-          _button(widget.pk)
+          _button(widget.boardPk)
         ],
       ),
     );
@@ -201,28 +211,30 @@ class _contentsState extends State<contents> {
     );
   }
 
-  Widget _button(pk) {
+  Widget _button(boardPk) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         ElevatedButton(
             onPressed: () async {
               final response = await UserAPI(context: context).updateBoard(
-                  pk: pk,
-                  title: titleController.text,
-                  creator: widget.name,
-                  content: contentController.text,
-                  like: widget.like,
-                  bookmark: widget.bookmark);
+                pk: boardPk,
+                title: titleController.text,
+                creator: widget.name,
+                content: contentController.text,
+                like: widget.like,
+                bookmark: widget.bookmark,
+              );
 
-              final response2 = await UserAPI(context: context)
-                  .insertElasticSearchBoard(
-                      id: pk,
-                      title: titleController.text,
-                      creator: widget.name,
-                      content: contentController.text,
-                      like: widget.like,
-                      bookmark: widget.bookmark);
+              final response2 =
+                  await UserAPI(context: context).insertElasticSearchBoard(
+                id: boardPk,
+                title: titleController.text,
+                creator: widget.name,
+                content: contentController.text,
+                like: widget.like,
+                bookmark: widget.bookmark,
+              );
 
               if (response['statusCode'] == 200) {
                 print(response['statusCode']);
@@ -233,15 +245,18 @@ class _contentsState extends State<contents> {
               Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
                       builder: (context) => BoardDetailPage(
-                          pk: widget.pk,
-                          email: widget.email,
-                          name: widget.name,
-                          sex: widget.sex,
-                          phone: widget.phone,
-                          title: widget.title,
-                          content: widget.content,
-                          like: widget.like,
-                          bookmark: widget.bookmark)),
+                            pk: widget.pk,
+                            boardPk: widget.boardPk,
+                            email: widget.email,
+                            name: widget.name,
+                            creator: widget.creator,
+                            sex: widget.sex,
+                            phone: widget.phone,
+                            title: widget.title,
+                            content: widget.content,
+                            like: widget.like,
+                            bookmark: widget.bookmark,
+                          )),
                   (route) => false);
             },
             child: Text('UPDATE')),

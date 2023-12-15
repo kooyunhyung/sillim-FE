@@ -4,7 +4,14 @@ import '../../api/user_api.dart';
 import '../../main.dart';
 
 class BoardCreatePage extends StatefulWidget {
-  BoardCreatePage({Key? key,required this.pk, required this.email, required this.name, required this.sex, required this.phone}) : super(key: key);
+  BoardCreatePage(
+      {Key? key,
+      required this.pk,
+      required this.email,
+      required this.name,
+      required this.sex,
+      required this.phone})
+      : super(key: key);
 
   int pk;
   String email;
@@ -41,13 +48,28 @@ class _BoardCreatePageState extends State<BoardCreatePage> {
           centerTitle: true,
         ),
       ),
-      body: contents(pk:widget.pk, email:widget.email, name: widget.name, sex:widget.sex, phone:widget.phone, width: width, height: height),
+      body: contents(
+          pk: widget.pk,
+          email: widget.email,
+          name: widget.name,
+          sex: widget.sex,
+          phone: widget.phone,
+          width: width,
+          height: height),
     );
   }
 }
 
 class contents extends StatefulWidget {
-  contents({Key? key, required this.pk, required this.email, required this.name, required this.sex, required this.phone, required this.width, required this.height})
+  contents(
+      {Key? key,
+      required this.pk,
+      required this.email,
+      required this.name,
+      required this.sex,
+      required this.phone,
+      required this.width,
+      required this.height})
       : super(key: key);
 
   int pk;
@@ -64,7 +86,6 @@ class contents extends StatefulWidget {
 
 class _contentsState extends State<contents> {
   TextEditingController title = TextEditingController();
-  TextEditingController creator = TextEditingController();
   TextEditingController content = TextEditingController();
 
   @override
@@ -131,10 +152,9 @@ class _contentsState extends State<contents> {
             decoration: BoxDecoration(
                 border: Border.all(color: Colors.blue, width: 5),
                 borderRadius: BorderRadius.circular(10)),
-            child: TextField(
-              controller: creator,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(border: InputBorder.none),
+            child: Text(
+              '${widget.name}',
+              style: TextStyle(fontSize: 20),
             ),
           )
         ],
@@ -164,21 +184,34 @@ class _contentsState extends State<contents> {
       children: [
         ElevatedButton(
             onPressed: () async {
-              final response =
-              await UserAPI(context: context).createBoard(
+              final response = await UserAPI(context: context).createBoard(
                 title: title.text,
-                creator: creator.text,
+                creator: widget.name,
                 content: content.text,
               );
 
-              int id=response["obj"]["sb_id"];
+              int id = response["obj"]["sb_id"];
 
-              final response2=
-              await UserAPI(context: context).insertElasticSearchBoard(id:id,title: title.text, creator: creator.text, content: content.text, like: 0, bookmark: false);
+              final response2 = await UserAPI(context: context)
+                  .insertElasticSearchBoard(
+                      id: id,
+                      title: title.text,
+                      creator: widget.name,
+                      content: content.text,
+                      like: 0,
+                      bookmark: false,
+                      );
 
               Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => MyHomePage(pk: widget.pk, email: widget.email, name: widget.name, sex:widget.sex, phone: widget.phone,)),
-                      (route) => false);
+                  MaterialPageRoute(
+                      builder: (context) => MyHomePage(
+                            pk: widget.pk,
+                            email: widget.email,
+                            name: widget.name,
+                            sex: widget.sex,
+                            phone: widget.phone,
+                          )),
+                  (route) => false);
             },
             child: Text('CREATE')),
       ],

@@ -171,21 +171,25 @@ class _MyHomePageState extends State<MyHomePage> {
                                 size: 73,
                               ),
                               GestureDetector(
-                                onTap: (){
+                                onTap: () {
                                   Navigator.of(context).pushAndRemoveUntil(
                                       MaterialPageRoute(
                                           builder: (context) => MyHomePage(
-                                            pk: -1,
-                                            email: "",
-                                            name: "",
-                                            sex: "",
-                                            phone: "",
-                                          )),
-                                          (route) => false);
+                                                pk: -1,
+                                                email: "",
+                                                name: "",
+                                                sex: "",
+                                                phone: "",
+                                              )),
+                                      (route) => false);
                                 },
                                 child: Row(
                                   children: [
-                                    Icon(Icons.logout, size: 20, color: Colors.white,),
+                                    Icon(
+                                      Icons.logout,
+                                      size: 20,
+                                      color: Colors.white,
+                                    ),
                                     Text(
                                       '로그아웃',
                                       style: TextStyle(
@@ -516,18 +520,23 @@ class _BoardPageState extends State<BoardPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => BoardDetailPage(
-                                        pk: snapshot.data[index]['sb_id'],
-                                        email: widget.email,
-                                        sex: widget.sex,
-                                        phone: widget.phone,
-                                        title: snapshot.data[index]['sb_title'],
-                                        name: snapshot.data[index]
-                                            ['sb_creator'],
-                                        content: snapshot.data[index]
-                                            ['sb_content'],
-                                        like: snapshot.data[index]['sb_like'],
-                                        bookmark: snapshot.data[index]
-                                            ['sb_bookmark'])));
+                                          pk: widget.pk,
+                                          boardPk: snapshot.data[index]
+                                              ['sb_id'],
+                                          email: widget.email,
+                                          sex: widget.sex,
+                                          phone: widget.phone,
+                                          title: snapshot.data[index]
+                                              ['sb_title'],
+                                          name: widget.name,
+                                          creator: snapshot.data[index]
+                                              ['sb_creator'],
+                                          content: snapshot.data[index]
+                                              ['sb_content'],
+                                          like: snapshot.data[index]['sb_like'],
+                                          bookmark: snapshot.data[index]
+                                              ['sb_bookmark'],
+                                        )));
                           },
                         ))
               ],
@@ -581,21 +590,24 @@ class _BoardPageState extends State<BoardPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => BoardDetailPage(
-                                        pk: snapshot.data[index]['_source']
-                                            ['boardId'],
-                                        email: widget.email,
-                                        sex: widget.sex,
-                                        phone: widget.phone,
-                                        title: snapshot.data[index]['_source']
-                                            ['boardTitle'],
-                                        name: snapshot.data[index]['_source']
-                                            ['boardCreator'],
-                                        content: snapshot.data[index]['_source']
-                                            ['boardContent'],
-                                        like: snapshot.data[index]['_source']
-                                            ['boardLike'],
-                                        bookmark: snapshot.data[index]
-                                            ['_source']['boardBookmark'])));
+                                          pk: widget.pk,
+                                          boardPk: snapshot.data[index]
+                                              ['_source']['boardId'],
+                                          email: widget.email,
+                                          sex: widget.sex,
+                                          phone: widget.phone,
+                                          title: snapshot.data[index]['_source']
+                                              ['boardTitle'],
+                                          name: widget.name,
+                                          creator: snapshot.data[index]
+                                              ['_source']['boardCreator'],
+                                          content: snapshot.data[index]
+                                              ['_source']['boardContent'],
+                                          like: snapshot.data[index]['_source']
+                                              ['boardLike'],
+                                          bookmark: snapshot.data[index]
+                                              ['_source']['boardBookmark'],
+                                        )));
                           },
                         ))
               ],
@@ -617,8 +629,6 @@ class _BoardPageState extends State<BoardPage> {
                 if (widget.pk == -1) {
                   _showDialog(context, '로그인 후 작성할 수 있습니다');
                 } else {
-                  print("뭐길래?");
-                  print(widget.pk);
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -632,7 +642,9 @@ class _BoardPageState extends State<BoardPage> {
                 }
               },
               child: Text('게시글 작성')),
-          SizedBox(height: 5,),
+          SizedBox(
+            height: 5,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -803,18 +815,23 @@ class _PopularBoardPageState extends State<PopularBoardPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => BoardDetailPage(
-                                        pk: snapshot.data[index]['sb_id'],
-                                        title: snapshot.data[index]['sb_title'],
-                                        email: widget.email,
-                                        sex: widget.sex,
-                                        phone: widget.phone,
-                                        name: snapshot.data[index]
-                                            ['sb_creator'],
-                                        content: snapshot.data[index]
-                                            ['sb_content'],
-                                        like: snapshot.data[index]['sb_like'],
-                                        bookmark: snapshot.data[index]
-                                            ['sb_bookmark'])));
+                                          pk: widget.pk,
+                                          boardPk: snapshot.data[index]
+                                              ['sb_id'],
+                                          title: snapshot.data[index]
+                                              ['sb_title'],
+                                          email: widget.email,
+                                          sex: widget.sex,
+                                          phone: widget.phone,
+                                          name: widget.name,
+                                          creator: snapshot.data[index]
+                                              ['sb_creator'],
+                                          content: snapshot.data[index]
+                                              ['sb_content'],
+                                          like: snapshot.data[index]['sb_like'],
+                                          bookmark: snapshot.data[index]
+                                              ['sb_bookmark'],
+                                        )));
                           },
                         ))
               ],
@@ -924,18 +941,23 @@ class _BookMarkedPageState extends State<BookMarkedPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => BoardDetailPage(
-                                        pk: snapshot.data[index]['sb_id'],
-                                        email: widget.email,
-                                        sex: widget.sex,
-                                        phone: widget.phone,
-                                        title: snapshot.data[index]['sb_title'],
-                                        name: snapshot.data[index]
-                                            ['sb_creator'],
-                                        content: snapshot.data[index]
-                                            ['sb_content'],
-                                        like: snapshot.data[index]['sb_like'],
-                                        bookmark: snapshot.data[index]
-                                            ['sb_bookmark'])));
+                                          pk: widget.pk,
+                                          boardPk: snapshot.data[index]
+                                              ['sb_id'],
+                                          email: widget.email,
+                                          sex: widget.sex,
+                                          phone: widget.phone,
+                                          title: snapshot.data[index]
+                                              ['sb_title'],
+                                          name: widget.name,
+                                          creator: snapshot.data[index]
+                                              ['sb_creator'],
+                                          content: snapshot.data[index]
+                                              ['sb_content'],
+                                          like: snapshot.data[index]['sb_like'],
+                                          bookmark: snapshot.data[index]
+                                              ['sb_bookmark'],
+                                        )));
                           },
                         ))
               ],
@@ -1172,7 +1194,9 @@ class _NoticePageState extends State<NoticePage> {
               }
             },
             child: Text('공지사항 작성')),
-        SizedBox(height: 5,),
+        SizedBox(
+          height: 5,
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

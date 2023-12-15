@@ -6,22 +6,26 @@ import '../../api/user_api.dart';
 import '../../main.dart';
 
 class BoardDetailPage extends StatefulWidget {
-  BoardDetailPage(
-      {Key? key,
-      required this.pk,
-      required this.email,
-      required this.name,
-      required this.sex,
-      required this.phone,
-      required this.title,
-      required this.content,
-      required this.like,
-      required this.bookmark})
-      : super(key: key);
+  BoardDetailPage({
+    Key? key,
+    required this.pk,
+    required this.boardPk,
+    required this.email,
+    required this.name,
+    required this.creator,
+    required this.sex,
+    required this.phone,
+    required this.title,
+    required this.content,
+    required this.like,
+    required this.bookmark,
+  }) : super(key: key);
 
   int pk;
+  int boardPk;
   String email;
   String name;
+  String creator;
   String sex;
   String phone;
   String title;
@@ -86,46 +90,53 @@ class _BoardDetailPageState extends State<BoardDetailPage> {
           ),
         ),
         body: contents(
-            width: width,
-            height: height,
-            title: widget.title,
-            pk: widget.pk,
-            name: widget.name,
-            email: widget.email,
-            sex: widget.sex,
-            phone: widget.phone,
-            content: widget.content,
-            like: widget.like,
-            bookmark: widget.bookmark),
+          width: width,
+          height: height,
+          title: widget.title,
+          pk: widget.pk,
+          boardPk: widget.boardPk,
+          name: widget.name,
+          creator: widget.creator,
+          email: widget.email,
+          sex: widget.sex,
+          phone: widget.phone,
+          content: widget.content,
+          like: widget.like,
+          bookmark: widget.bookmark,
+        ),
       ),
     );
   }
 }
 
 class contents extends StatefulWidget {
-  contents(
-      {Key? key,
-      required this.width,
-      required this.height,
-      required this.pk,
-      required this.name,
-      required this.email,
-      required this.sex,
-      required this.phone,
-      required this.title,
-      required this.content,
-      required this.like,
-      required this.bookmark})
-      : super(key: key);
+  contents({
+    Key? key,
+    required this.width,
+    required this.height,
+    required this.pk,
+    required this.boardPk,
+    required this.name,
+    required this.creator,
+    required this.email,
+    required this.sex,
+    required this.phone,
+    required this.title,
+    required this.content,
+    required this.like,
+    required this.bookmark,
+  }) : super(key: key);
 
   double width;
   double height;
   int pk;
+  int boardPk;
   String email;
   String sex;
   String phone;
   String title;
   String name;
+  String creator;
   String content;
   int like;
   bool bookmark;
@@ -139,6 +150,8 @@ class _contentsState extends State<contents> {
   var bookmarkTmp;
 
   var commentWindow;
+
+  TextEditingController commentController = TextEditingController();
 
   @override
   void initState() {
@@ -155,11 +168,11 @@ class _contentsState extends State<contents> {
       child: ListView(
         children: [
           _title(widget.width, widget.height, widget.title),
-          _creator(widget.width, widget.height, widget.name),
+          _creator(widget.width, widget.height, widget.creator),
           _content(widget.width, widget.height, widget.content),
           _like_bookmark(widget.width, widget.height),
-          _button(widget.pk),
-          _comment(widget.pk)
+          _button(widget.boardPk),
+          _comment(widget.boardPk)
         ],
       ),
     );
@@ -238,38 +251,42 @@ class _contentsState extends State<contents> {
               children: [
                 InkWell(
                     onTap: () async {
-                      int newLikeValue = likeTmp + 1;
-                      try {
-                        final response =
-                            await UserAPI(context: context).updateBoard(
-                          pk: widget.pk,
-                          title: widget.title,
-                          creator: widget.name,
-                          content: widget.content,
-                          like: newLikeValue,
-                          bookmark: bookmarkTmp,
-                        );
+                      if (widget.pk == -1) {
+                        _showDialog(context, "로그인 후 이용 가능합니다.");
+                      } else {
+                        int newLikeValue = likeTmp + 1;
+                        try {
+                          final response =
+                              await UserAPI(context: context).updateBoard(
+                            pk: widget.boardPk,
+                            title: widget.title,
+                            creator: widget.creator,
+                            content: widget.content,
+                            like: newLikeValue,
+                            bookmark: bookmarkTmp,
+                          );
 
-                        final response2 = await UserAPI(context: context)
-                            .insertElasticSearchBoard(
-                          id: widget.pk,
-                          title: widget.title,
-                          creator: widget.name,
-                          content: widget.content,
-                          like: newLikeValue,
-                          bookmark: bookmarkTmp,
-                        );
+                          final response2 = await UserAPI(context: context)
+                              .insertElasticSearchBoard(
+                            id: widget.boardPk,
+                            title: widget.title,
+                            creator: widget.creator,
+                            content: widget.content,
+                            like: newLikeValue,
+                            bookmark: bookmarkTmp,
+                          );
 
-                        if (response['statusCode'] == 200) {
-                          setState(() {
-                            likeTmp = newLikeValue;
-                          });
-                          print(response['statusCode']);
-                        } else {
-                          print(response['statusCode']);
+                          if (response['statusCode'] == 200) {
+                            setState(() {
+                              likeTmp = newLikeValue;
+                            });
+                            print(response['statusCode']);
+                          } else {
+                            print(response['statusCode']);
+                          }
+                        } catch (error) {
+                          print('Error: $error');
                         }
-                      } catch (error) {
-                        print('Error: $error');
                       }
                     },
                     child: Icon(
@@ -292,9 +309,9 @@ class _contentsState extends State<contents> {
                           try {
                             final response =
                                 await UserAPI(context: context).updateBoard(
-                              pk: widget.pk,
+                              pk: widget.boardPk,
                               title: widget.title,
-                              creator: widget.name,
+                              creator: widget.creator,
                               content: widget.content,
                               like: likeTmp,
                               bookmark: newBookmarkValue,
@@ -302,9 +319,9 @@ class _contentsState extends State<contents> {
 
                             final response2 = await UserAPI(context: context)
                                 .insertElasticSearchBoard(
-                              id: widget.pk,
+                              id: widget.boardPk,
                               title: widget.title,
-                              creator: widget.name,
+                              creator: widget.creator,
                               content: widget.content,
                               like: likeTmp,
                               bookmark: newBookmarkValue,
@@ -335,9 +352,9 @@ class _contentsState extends State<contents> {
                           try {
                             final response =
                                 await UserAPI(context: context).updateBoard(
-                              pk: widget.pk,
+                              pk: widget.boardPk,
                               title: widget.title,
-                              creator: widget.name,
+                              creator: widget.creator,
                               content: widget.content,
                               like: likeTmp,
                               bookmark: newBookmarkValue,
@@ -345,9 +362,9 @@ class _contentsState extends State<contents> {
 
                             final response2 = await UserAPI(context: context)
                                 .insertElasticSearchBoard(
-                              id: widget.pk,
+                              id: widget.boardPk,
                               title: widget.title,
-                              creator: widget.name,
+                              creator: widget.creator,
                               content: widget.content,
                               like: likeTmp,
                               bookmark: newBookmarkValue,
@@ -377,7 +394,7 @@ class _contentsState extends State<contents> {
         ));
   }
 
-  Widget _button(pk) {
+  Widget _button(boardPk) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -387,23 +404,26 @@ class _contentsState extends State<contents> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => BoardUpdatePage(
-                          pk: pk,
-                          email: widget.email,
-                          sex: widget.sex,
-                          phone: widget.phone,
-                          title: widget.title,
-                          name: widget.name,
-                          content: widget.content,
-                          like: likeTmp,
-                          bookmark: bookmarkTmp)));
+                            pk: widget.pk,
+                            boardPk: boardPk,
+                            email: widget.email,
+                            sex: widget.sex,
+                            phone: widget.phone,
+                            title: widget.title,
+                            name: widget.name,
+                            creator: widget.creator,
+                            content: widget.content,
+                            like: likeTmp,
+                            bookmark: bookmarkTmp,
+                          )));
             },
             child: Text('UPDATE')),
         ElevatedButton(
             onPressed: () async {
               try {
                 final response =
-                    await UserAPI(context: context).deleteBoard(pk: pk);
-                UserAPI(context: context).deleteElasticSearchBoard(pk: pk);
+                    await UserAPI(context: context).deleteBoard(pk: boardPk);
+                UserAPI(context: context).deleteElasticSearchBoard(pk: boardPk);
 
                 if (response['statusCode'] == 200) {
                   print(response['statusCode']);
@@ -432,7 +452,7 @@ class _contentsState extends State<contents> {
     );
   }
 
-  Widget _comment(pk) {
+  Widget _comment(boardPk) {
     return commentWindow
         ? Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -452,7 +472,7 @@ class _contentsState extends State<contents> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('댓글()'),
+                    Text('댓글'),
                     Icon(Icons.keyboard_arrow_down_rounded)
                   ],
                 ),
@@ -479,7 +499,7 @@ class _contentsState extends State<contents> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('댓글()'),
+                        Text('댓글'),
                         Icon(Icons.keyboard_arrow_up_rounded)
                       ],
                     ),
@@ -487,7 +507,7 @@ class _contentsState extends State<contents> {
                 ),
               ),
               FutureBuilder(
-                future: _fetchBoardComments(context,pk),
+                future: _fetchBoardComments(context, boardPk),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData == false) {
                     return Container(
@@ -511,11 +531,56 @@ class _contentsState extends State<contents> {
                       children: [
                         ...List.generate(
                             snapshot.data.length,
-                                (index) => ListTile(
-                              leading: Text('${snapshot.data[index]['sbc_creator']}'),
-                              title: Text('${snapshot.data[index]['sbc_content']}'),
-                              onTap: () {},
-                            ))
+                            (index) => ListTile(
+                                  leading: Text(
+                                    '${snapshot.data[index]['sbc_creator']}',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  title: Text(
+                                      '${snapshot.data[index]['sbc_content']}'),
+                                  onTap: () {},
+                                )),
+                        Row(
+                          children: [
+                            Container(
+                              width: widget.width * 0.7,
+                              height: widget.height * 0.05,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 2.0),
+                                child: TextFormField(
+                                  controller: commentController,
+                                  keyboardType: TextInputType.text,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 5.0)),
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  if (widget.pk == -1) {
+                                    _showDialog(context, "로그인 후 이용 가능합니다.");
+                                  } else {
+                                    await UserAPI(context: context)
+                                        .createBoardComment(
+                                            creator: widget.name,
+                                            content: commentController.text,
+                                            boardId: widget.boardPk,
+                                            boardTitle: widget.title,
+                                            boardCreator: widget.creator,
+                                            boardContent: widget.content,
+                                            boardLike: widget.like,
+                                            boardBookmark: widget.bookmark);
+
+                                    setState(() {});
+                                  }
+                                },
+                                child: Text('댓글등록'))
+                          ],
+                        ),
                       ],
                     );
                   }
@@ -525,9 +590,27 @@ class _contentsState extends State<contents> {
           );
   }
 
-  Future<dynamic> _fetchBoardComments(context,pk) async {
-    dynamic boardCommentList = await UserAPI(context: context).readBoardComments(pk:pk);
+  Future<dynamic> _fetchBoardComments(context, boardPk) async {
+    dynamic boardCommentList =
+        await UserAPI(context: context).readBoardComments(pk: boardPk);
     print(boardCommentList);
     return boardCommentList;
+  }
+
+  Future<dynamic> _showDialog(BuildContext context, String text) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              elevation: 10.0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30))),
+              title: Text('오류'),
+              content: Text('$text'),
+              actions: [
+                ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('확인'))
+              ],
+            ));
   }
 }

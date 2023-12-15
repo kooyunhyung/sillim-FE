@@ -191,7 +191,7 @@ class UserAPI extends CommonAPI {
       "boardCreator": creator,
       "boardContent": content,
       "boardLike": like,
-      "boardBookmark": bookmark
+      "boardBookmark": bookmark,
     }, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
@@ -287,13 +287,14 @@ class UserAPI extends CommonAPI {
       required String creator,
       required String content,
       required int like,
-      required bool bookmark}) async {
+      required bool bookmark,
+      }) async {
     final response = await post('sillim/board/$pk', body: {
       "sb_title": title,
       "sb_creator": creator,
       "sb_content": content,
       "sb_like": like,
-      "sb_bookmark": bookmark
+      "sb_bookmark": bookmark,
     }, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
@@ -313,29 +314,27 @@ class UserAPI extends CommonAPI {
   }
 
   // 게시글 댓글 생성
-
   Future<Map<String, dynamic>> createBoardComment(
       {required String creator,
       required String content,
       required int boardId,
-        required String boardTitle,
-        required String boardCreator,
-        required String boardContent,
-        required int boardLike,
-        required bool boardBookmark,
-        required dynamic boardCommentList
+      required String boardTitle,
+      required String boardCreator,
+      required String boardContent,
+      required int boardLike,
+      required bool boardBookmark,
       }) async {
     final response = await post('sillim/board/comment', body: {
       "sbc_creator": creator,
       "sbc_content": content,
       "sbc_board": {
-        "sb_id": 5,
+        "sb_id": boardId,
         "sb_title": boardTitle,
         "sb_creator": boardCreator,
         "sb_content": boardContent,
         "sb_like": boardLike,
         "sb_bookmark": boardBookmark,
-        "sb_comment_list": boardCommentList
+        "sb_comment_list": []
       }
     }, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
