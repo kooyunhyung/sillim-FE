@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +18,7 @@ final dummyItems = [
   'https://cdn.rcnews.co.kr/news/photo/202306/31797_32539_4734.jpg',
 ];
 
-void main() {
+void main() async {
   runApp(MyApp());
 }
 
@@ -63,7 +65,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var _index = 0; //페이지 인덱스 0,1,2
   int _drawerIndex = 0; // Drawer 인덱스 0,1,2
 
   void _onItemTapped(int index) {
@@ -71,12 +72,6 @@ class _MyHomePageState extends State<MyHomePage> {
       _drawerIndex = index;
     });
   }
-
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   widget.pk=-1;
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -338,7 +333,15 @@ class _frameState extends State<frame> {
   // 상단
   Widget _buildTop() {
     return CarouselSlider(
-      options: CarouselOptions(height: 200.0),
+      options: CarouselOptions(
+          height: 200.0,
+          autoPlay: true,
+          enableInfiniteScroll: true,
+          enlargeCenterPage: true,
+          autoPlayInterval: const Duration(seconds: 3),
+
+          // autoPlayAnimationDuration: Duration(seconds: 4)
+      ),
       items: dummyItems.map((url) {
         //다섯 페이지
         return Builder(
@@ -377,7 +380,14 @@ class _frameState extends State<frame> {
                 },
                 child: Text(
                   '전체글',
-                  style: TextStyle(fontSize: 21),
+                  style: TextStyle(
+                      decoration: _index == 0
+                          ? TextDecoration.underline
+                          : TextDecoration.none,
+                      decorationColor: Colors.deepPurple,
+                      decorationThickness: 5,
+                      fontSize: 21,
+                      color: _index == 0 ? Colors.deepPurple : Colors.black),
                 ),
               ),
               InkWell(
@@ -388,7 +398,14 @@ class _frameState extends State<frame> {
                 },
                 child: Text(
                   '인기글',
-                  style: TextStyle(fontSize: 21),
+                  style: TextStyle(
+                      decoration: _index == 1
+                          ? TextDecoration.underline
+                          : TextDecoration.none,
+                      decorationColor: Colors.deepPurple,
+                      decorationThickness: 5,
+                      fontSize: 21,
+                      color: _index == 1 ? Colors.deepPurple : Colors.black),
                 ),
               ),
               InkWell(
@@ -399,7 +416,14 @@ class _frameState extends State<frame> {
                 },
                 child: Text(
                   '즐겨찾기',
-                  style: TextStyle(fontSize: 21),
+                  style: TextStyle(
+                      decoration: _index == 2
+                          ? TextDecoration.underline
+                          : TextDecoration.none,
+                      decorationColor: Colors.deepPurple,
+                      decorationThickness: 5,
+                      fontSize: 21,
+                      color: _index == 2 ? Colors.deepPurple : Colors.black),
                 ),
               ),
               InkWell(
@@ -410,7 +434,14 @@ class _frameState extends State<frame> {
                 },
                 child: Text(
                   '전체공지',
-                  style: TextStyle(fontSize: 21),
+                  style: TextStyle(
+                      decoration: _index == 3
+                          ? TextDecoration.underline
+                          : TextDecoration.none,
+                      decorationColor: Colors.deepPurple,
+                      decorationThickness: 5,
+                      fontSize: 21,
+                      color: _index == 3 ? Colors.deepPurple : Colors.black),
                 ),
               ),
             ],
@@ -514,7 +545,11 @@ class _BoardPageState extends State<BoardPage> {
                     snapshot.data.length,
                     (index) => ListTile(
                           leading: Icon(Icons.message_outlined),
-                          title: Text('${snapshot.data[index]['sb_title']}'),
+                          title: Text(
+                            '${snapshot.data[index]['sb_title']}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                           onTap: () {
                             Navigator.push(
                                 context,
@@ -536,6 +571,7 @@ class _BoardPageState extends State<BoardPage> {
                                           like: snapshot.data[index]['sb_like'],
                                           bookmark: snapshot.data[index]
                                               ['sb_bookmark'],
+                                          date: snapshot.data[index]['sb_date'],
                                         )));
                           },
                         ))
@@ -572,6 +608,10 @@ class _BoardPageState extends State<BoardPage> {
               ),
             ),
           );
+        } else if (snapshot.data.length == 0) {
+          return Container(
+            child: Text('검색결과가 존재하지 않습니다'),
+          );
         } else {
           return Container(
             width: width,
@@ -584,7 +624,10 @@ class _BoardPageState extends State<BoardPage> {
                     (index) => ListTile(
                           leading: Icon(Icons.message_outlined),
                           title: Text(
-                              '${snapshot.data[index]["_source"]['boardTitle']}'),
+                            '${snapshot.data[index]["_source"]['boardTitle']}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                           onTap: () {
                             Navigator.push(
                                 context,
@@ -607,6 +650,8 @@ class _BoardPageState extends State<BoardPage> {
                                               ['boardLike'],
                                           bookmark: snapshot.data[index]
                                               ['_source']['boardBookmark'],
+                                          date: snapshot.data[index]['_source']
+                                              ['boardDate'],
                                         )));
                           },
                         ))
@@ -727,7 +772,6 @@ class _BoardPageState extends State<BoardPage> {
       dynamic searchedBoard = await UserAPI(context: context)
           .readElasticSearchBoardsByTitle(searchText: searchController.text);
       dynamic searchedData = searchedBoard["hits"]["hits"];
-      print(searchedData);
       return searchedData;
     } else if (_selectedCondition == '작성자') {
       dynamic searchedBoard = await UserAPI(context: context)
@@ -809,7 +853,11 @@ class _PopularBoardPageState extends State<PopularBoardPage> {
                     snapshot.data.length,
                     (index) => ListTile(
                           leading: Icon(Icons.message_outlined),
-                          title: Text('${snapshot.data[index]['sb_title']}'),
+                          title: Text(
+                            '${snapshot.data[index]['sb_title']}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                           onTap: () {
                             Navigator.push(
                                 context,
@@ -831,6 +879,7 @@ class _PopularBoardPageState extends State<PopularBoardPage> {
                                           like: snapshot.data[index]['sb_like'],
                                           bookmark: snapshot.data[index]
                                               ['sb_bookmark'],
+                                          date: snapshot.data[index]['sb_date'],
                                         )));
                           },
                         ))
@@ -935,29 +984,32 @@ class _BookMarkedPageState extends State<BookMarkedPage> {
                     snapshot.data.length,
                     (index) => ListTile(
                           leading: Icon(Icons.message_outlined),
-                          title: Text('${snapshot.data[index]['sb_title']}'),
+                          title: Text(
+                            '${snapshot.data[index]['sb_title']}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                           onTap: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => BoardDetailPage(
-                                          pk: widget.pk,
-                                          boardPk: snapshot.data[index]
-                                              ['sb_id'],
-                                          email: widget.email,
-                                          sex: widget.sex,
-                                          phone: widget.phone,
-                                          title: snapshot.data[index]
-                                              ['sb_title'],
-                                          name: widget.name,
-                                          creator: snapshot.data[index]
-                                              ['sb_creator'],
-                                          content: snapshot.data[index]
-                                              ['sb_content'],
-                                          like: snapshot.data[index]['sb_like'],
-                                          bookmark: snapshot.data[index]
-                                              ['sb_bookmark'],
-                                        )));
+                                        pk: widget.pk,
+                                        boardPk: snapshot.data[index]['sb_id'],
+                                        email: widget.email,
+                                        sex: widget.sex,
+                                        phone: widget.phone,
+                                        title: snapshot.data[index]['sb_title'],
+                                        name: widget.name,
+                                        creator: snapshot.data[index]
+                                            ['sb_creator'],
+                                        content: snapshot.data[index]
+                                            ['sb_content'],
+                                        like: snapshot.data[index]['sb_like'],
+                                        bookmark: snapshot.data[index]
+                                            ['sb_bookmark'],
+                                        date: snapshot.data[index]
+                                            ['sb_date'])));
                           },
                         ))
               ],
@@ -1085,21 +1137,28 @@ class _NoticePageState extends State<NoticePage> {
                     snapshot.data.length,
                     (index) => ListTile(
                           leading: Icon(Icons.notifications),
-                          title: Text('${snapshot.data[index]['sn_title']}'),
+                          title: Text(
+                            '${snapshot.data[index]['sn_title']}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                           onTap: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => NoticeDetailPage(
-                                        pk: snapshot.data[index]['sn_id'],
-                                        email: widget.email,
-                                        sex: widget.sex,
-                                        phone: widget.phone,
-                                        title: snapshot.data[index]['sn_title'],
-                                        name: snapshot.data[index]
-                                            ['sn_creator'],
-                                        content: snapshot.data[index]
-                                            ['sn_content'])));
+                                          pk: snapshot.data[index]['sn_id'],
+                                          email: widget.email,
+                                          sex: widget.sex,
+                                          phone: widget.phone,
+                                          title: snapshot.data[index]
+                                              ['sn_title'],
+                                          name: snapshot.data[index]
+                                              ['sn_creator'],
+                                          content: snapshot.data[index]
+                                              ['sn_content'],
+                                          date: snapshot.data[index]['sn_date'],
+                                        )));
                           },
                         ))
               ],
@@ -1146,21 +1205,28 @@ class _NoticePageState extends State<NoticePage> {
                     (index) => ListTile(
                           leading: Icon(Icons.notifications),
                           title: Text(
-                              '${snapshot.data[index]['_source']["noticeTitle"]}'),
+                            '${snapshot.data[index]['_source']["noticeTitle"]}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                           onTap: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => NoticeDetailPage(
-                                        pk: snapshot.data[index]['sn_id'],
-                                        email: widget.email,
-                                        sex: widget.sex,
-                                        phone: widget.phone,
-                                        title: snapshot.data[index]['sn_title'],
-                                        name: snapshot.data[index]
-                                            ['sn_creator'],
-                                        content: snapshot.data[index]
-                                            ['sn_content'])));
+                                          pk: snapshot.data[index]['noticeId'],
+                                          email: widget.email,
+                                          sex: widget.sex,
+                                          phone: widget.phone,
+                                          title: snapshot.data[index]
+                                              ['noticeTitle'],
+                                          name: snapshot.data[index]
+                                              ['noticeCreator'],
+                                          content: snapshot.data[index]
+                                              ['noticeContent'],
+                                          date: snapshot.data[index]
+                                              ['noticeDate'],
+                                        )));
                           },
                         ))
               ],

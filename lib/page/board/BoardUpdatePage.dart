@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/page/board/BoardDetailPage.dart';
+import 'package:intl/intl.dart';
 
 import '../../api/user_api.dart';
 import '../../main.dart';
 
 class BoardUpdatePage extends StatefulWidget {
-  BoardUpdatePage({
-    Key? key,
-    required this.pk,
-    required this.boardPk,
-    required this.title,
-    required this.email,
-    required this.sex,
-    required this.phone,
-    required this.name,
-    required this.creator,
-    required this.content,
-    required this.like,
-    required this.bookmark,
-  }) : super(key: key);
+  BoardUpdatePage(
+      {Key? key,
+      required this.pk,
+      required this.boardPk,
+      required this.title,
+      required this.email,
+      required this.sex,
+      required this.phone,
+      required this.name,
+      required this.creator,
+      required this.content,
+      required this.like,
+      required this.bookmark,
+      required this.date})
+      : super(key: key);
 
   int pk;
   int boardPk;
@@ -31,6 +33,7 @@ class BoardUpdatePage extends StatefulWidget {
   String content;
   int like;
   bool bookmark;
+  String date;
 
   @override
   _BoardUpdatePageState createState() => _BoardUpdatePageState();
@@ -62,19 +65,21 @@ class _BoardUpdatePageState extends State<BoardUpdatePage> {
         ),
       ),
       body: contents(
-          width: width,
-          height: height,
-          pk: widget.pk,
-          boardPk: widget.boardPk,
-          email: widget.email,
-          sex: widget.sex,
-          phone: widget.phone,
-          title: widget.title,
-          name: widget.name,
-          content: widget.content,
-          like: widget.like,
-          bookmark: widget.bookmark,
-          creator: widget.creator),
+        width: width,
+        height: height,
+        pk: widget.pk,
+        boardPk: widget.boardPk,
+        email: widget.email,
+        sex: widget.sex,
+        phone: widget.phone,
+        title: widget.title,
+        name: widget.name,
+        content: widget.content,
+        like: widget.like,
+        bookmark: widget.bookmark,
+        creator: widget.creator,
+        date: widget.date,
+      ),
     );
   }
 }
@@ -94,7 +99,8 @@ class contents extends StatefulWidget {
       required this.content,
       required this.like,
       required this.bookmark,
-      required this.creator})
+      required this.creator,
+      required this.date})
       : super(key: key);
 
   double width;
@@ -110,6 +116,7 @@ class contents extends StatefulWidget {
   String content;
   int like;
   bool bookmark;
+  String date;
 
   @override
   _contentsState createState() => _contentsState();
@@ -132,7 +139,7 @@ class _contentsState extends State<contents> {
       padding: const EdgeInsets.all(8.0),
       child: ListView(
         children: [
-          _title(widget.width, widget.height),
+          _title(widget.width, widget.height, widget.date),
           _creator(widget.width, widget.height, widget.creator),
           _content(widget.width, widget.height),
           _button(widget.boardPk)
@@ -141,31 +148,43 @@ class _contentsState extends State<contents> {
     );
   }
 
-  Widget _title(width, height) {
+  Widget _title(width, height, date) {
+    DateTime dateParse = DateTime.parse(date).toLocal();
+    String dateFormat = DateFormat('yyyy년 MM월 dd일 HH:mm').format(dateParse);
+
     return Container(
       width: width * 0.9,
-      height: height * 0.08,
-      child: Row(
+      height: height * 0.11,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(
-            "제목",
-            style: TextStyle(fontSize: 30),
+          Text('$dateFormat'),
+          SizedBox(height: 12,),
+          Row(
+            children: [
+              Text(
+                "제목",
+                style: TextStyle(fontSize: 30),
+              ),
+              SizedBox(
+                width: width * 0.03,
+              ),
+              Container(
+                width: width * 0.78,
+                height: height * 0.05,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.deepPurple, width: 2),
+                    borderRadius: BorderRadius.circular(5)),
+                child: TextField(
+                  controller: titleController,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 5.0)),
+                ),
+              ),
+            ],
           ),
-          SizedBox(
-            width: width * 0.03,
-          ),
-          Container(
-            width: width * 0.78,
-            height: height * 0.05,
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 5),
-                borderRadius: BorderRadius.circular(10)),
-            child: TextField(
-              controller: titleController,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(border: InputBorder.none),
-            ),
-          )
         ],
       ),
     );
@@ -185,12 +204,13 @@ class _contentsState extends State<contents> {
             width: width * 0.04,
           ),
           Container(
+            padding: EdgeInsets.symmetric(horizontal: 5.0),
               width: width * 0.7,
               height: height * 0.05,
               decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blue, width: 5),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Text(creator))
+                  border: Border.all(color: Colors.deepPurple, width: 2),
+                  borderRadius: BorderRadius.circular(5)),
+              child: Text(creator,style: TextStyle(fontSize: 20),))
         ],
       ),
     );
@@ -201,12 +221,15 @@ class _contentsState extends State<contents> {
       width: width * 0.9,
       height: height * 0.6,
       decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue, width: 5),
-          borderRadius: BorderRadius.circular(10)),
+          border: Border.all(color: Colors.deepPurple, width: 2),
+          borderRadius: BorderRadius.circular(5)),
       child: TextField(
         controller: contentController,
-        keyboardType: TextInputType.text,
-        decoration: InputDecoration(border: InputBorder.none),
+        keyboardType: TextInputType.multiline,
+        maxLines: 3000,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(horizontal: 5.0)),
       ),
     );
   }
@@ -217,50 +240,77 @@ class _contentsState extends State<contents> {
       children: [
         ElevatedButton(
             onPressed: () async {
-              final response = await UserAPI(context: context).updateBoard(
-                pk: boardPk,
-                title: titleController.text,
-                creator: widget.name,
-                content: contentController.text,
-                like: widget.like,
-                bookmark: widget.bookmark,
-              );
 
-              final response2 =
-                  await UserAPI(context: context).insertElasticSearchBoard(
-                id: boardPk,
-                title: titleController.text,
-                creator: widget.name,
-                content: contentController.text,
-                like: widget.like,
-                bookmark: widget.bookmark,
-              );
-
-              if (response['statusCode'] == 200) {
-                print(response['statusCode']);
+              if (titleController.text.trim()=='') {
+                _showDialog(context,'오류','제목을 입력하세요.');
+              } else if (contentController.text.trim()=='') {
+                _showDialog(context,'오류','내용을 입력하세요.');
               } else {
-                print(response['statusCode']);
-              }
+                final response = await UserAPI(context: context).updateBoard(
+                  pk: boardPk,
+                  title: titleController.text,
+                  creator: widget.name,
+                  content: contentController.text,
+                  like: widget.like,
+                  bookmark: widget.bookmark,
+                );
 
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => BoardDetailPage(
-                            pk: widget.pk,
-                            boardPk: widget.boardPk,
-                            email: widget.email,
-                            name: widget.name,
-                            creator: widget.creator,
-                            sex: widget.sex,
-                            phone: widget.phone,
-                            title: widget.title,
-                            content: widget.content,
-                            like: widget.like,
-                            bookmark: widget.bookmark,
-                          )),
-                  (route) => false);
+                final response2 = await UserAPI(context: context)
+                    .insertElasticSearchBoard(
+                    id: boardPk,
+                    title: titleController.text,
+                    creator: widget.name,
+                    content: contentController.text,
+                    like: widget.like,
+                    bookmark: widget.bookmark,
+                    date: widget.date);
+
+                if (response['statusCode'] == 200) {
+                  print(response['statusCode']);
+                } else {
+                  print(response['statusCode']);
+                }
+
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => BoardDetailPage(
+                          pk: widget.pk,
+                          boardPk: widget.boardPk,
+                          email: widget.email,
+                          name: widget.name,
+                          creator: widget.creator,
+                          sex: widget.sex,
+                          phone: widget.phone,
+                          title: widget.title,
+                          content: widget.content,
+                          like: widget.like,
+                          bookmark: widget.bookmark,
+                          date: widget.date,
+                        )),
+                        (route) => false);
+
+                _showDialog(context,'완료','게시글이 수정 되었습니다.');
+              }
             },
             child: Text('UPDATE')),
       ],
     );
   }
+}
+
+Future<dynamic> _showDialog(BuildContext context, String title, String content) {
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        elevation: 10.0,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(30))),
+        title: Text('$title'),
+        content: Text('$content'),
+        actions: [
+          ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('확인'))
+        ],
+      ));
 }

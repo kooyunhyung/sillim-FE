@@ -1,25 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'BoardUpdatePage.dart';
 import '../../api/user_api.dart';
 import '../../main.dart';
 
 class BoardDetailPage extends StatefulWidget {
-  BoardDetailPage({
-    Key? key,
-    required this.pk,
-    required this.boardPk,
-    required this.email,
-    required this.name,
-    required this.creator,
-    required this.sex,
-    required this.phone,
-    required this.title,
-    required this.content,
-    required this.like,
-    required this.bookmark,
-  }) : super(key: key);
+  BoardDetailPage(
+      {Key? key,
+      required this.pk,
+      required this.boardPk,
+      required this.email,
+      required this.name,
+      required this.creator,
+      required this.sex,
+      required this.phone,
+      required this.title,
+      required this.content,
+      required this.like,
+      required this.bookmark,
+      required this.date})
+      : super(key: key);
 
   int pk;
   int boardPk;
@@ -32,6 +34,7 @@ class BoardDetailPage extends StatefulWidget {
   String content;
   int like;
   bool bookmark;
+  String date;
 
   @override
   _BoardDetailPageState createState() => _BoardDetailPageState();
@@ -90,42 +93,43 @@ class _BoardDetailPageState extends State<BoardDetailPage> {
           ),
         ),
         body: contents(
-          width: width,
-          height: height,
-          title: widget.title,
-          pk: widget.pk,
-          boardPk: widget.boardPk,
-          name: widget.name,
-          creator: widget.creator,
-          email: widget.email,
-          sex: widget.sex,
-          phone: widget.phone,
-          content: widget.content,
-          like: widget.like,
-          bookmark: widget.bookmark,
-        ),
+            width: width,
+            height: height,
+            title: widget.title,
+            pk: widget.pk,
+            boardPk: widget.boardPk,
+            name: widget.name,
+            creator: widget.creator,
+            email: widget.email,
+            sex: widget.sex,
+            phone: widget.phone,
+            content: widget.content,
+            like: widget.like,
+            bookmark: widget.bookmark,
+            date: widget.date),
       ),
     );
   }
 }
 
 class contents extends StatefulWidget {
-  contents({
-    Key? key,
-    required this.width,
-    required this.height,
-    required this.pk,
-    required this.boardPk,
-    required this.name,
-    required this.creator,
-    required this.email,
-    required this.sex,
-    required this.phone,
-    required this.title,
-    required this.content,
-    required this.like,
-    required this.bookmark,
-  }) : super(key: key);
+  contents(
+      {Key? key,
+      required this.width,
+      required this.height,
+      required this.pk,
+      required this.boardPk,
+      required this.name,
+      required this.creator,
+      required this.email,
+      required this.sex,
+      required this.phone,
+      required this.title,
+      required this.content,
+      required this.like,
+      required this.bookmark,
+      required this.date})
+      : super(key: key);
 
   double width;
   double height;
@@ -140,6 +144,7 @@ class contents extends StatefulWidget {
   String content;
   int like;
   bool bookmark;
+  String date;
 
   @override
   _contentsState createState() => _contentsState();
@@ -167,7 +172,7 @@ class _contentsState extends State<contents> {
       padding: const EdgeInsets.all(8.0),
       child: ListView(
         children: [
-          _title(widget.width, widget.height, widget.title),
+          _title(widget.width, widget.height, widget.title, widget.date),
           _creator(widget.width, widget.height, widget.creator),
           _content(widget.width, widget.height, widget.content),
           _like_bookmark(widget.width, widget.height),
@@ -178,27 +183,43 @@ class _contentsState extends State<contents> {
     );
   }
 
-  Widget _title(width, height, title) {
+  Widget _title(width, height, title, date) {
+    DateTime dateParsing = DateTime.parse(date).toLocal();
+    String dateFormat = DateFormat('yyyy년 MM월 dd일 HH:mm').format(dateParsing);
+
     return Container(
       width: width * 0.9,
-      height: height * 0.08,
-      child: Row(
+      height: height * 0.11,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(
-            "제목",
-            style: TextStyle(fontSize: 30),
-          ),
+          Text('$dateFormat'),
           SizedBox(
-            width: width * 0.03,
+            height: 12,
           ),
-          Container(
-            width: width * 0.78,
-            height: height * 0.05,
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 5),
-                borderRadius: BorderRadius.circular(10)),
-            child: Text(title),
-          )
+          Row(
+            children: [
+              Text(
+                "제목",
+                style: TextStyle(fontSize: 30),
+              ),
+              SizedBox(
+                width: width * 0.03,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 5.0),
+                width: width * 0.78,
+                height: height * 0.05,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.deepPurple, width: 2),
+                    borderRadius: BorderRadius.circular(5)),
+                child: Text(
+                  title,
+                  style: TextStyle(fontSize: 20),
+                ),
+              )
+            ],
+          ),
         ],
       ),
     );
@@ -218,12 +239,16 @@ class _contentsState extends State<contents> {
             width: width * 0.04,
           ),
           Container(
+              padding: EdgeInsets.symmetric(horizontal: 5.0),
               width: width * 0.7,
               height: height * 0.05,
               decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blue, width: 5),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Text(creator))
+                  border: Border.all(color: Colors.deepPurple, width: 2),
+                  borderRadius: BorderRadius.circular(5)),
+              child: Text(
+                creator,
+                style: TextStyle(fontSize: 20),
+              ))
         ],
       ),
     );
@@ -231,12 +256,13 @@ class _contentsState extends State<contents> {
 
   Widget _content(width, height, content) {
     return Container(
+        padding: EdgeInsets.symmetric(horizontal: 5.0),
         width: width * 0.9,
         height: height * 0.6,
         decoration: BoxDecoration(
-            border: Border.all(color: Colors.blue, width: 5),
-            borderRadius: BorderRadius.circular(10)),
-        child: Text(content));
+            border: Border.all(color: Colors.deepPurple, width: 2),
+            borderRadius: BorderRadius.circular(5)),
+        child: Text(content,style: TextStyle(fontSize: 15),));
   }
 
   Widget _like_bookmark(width, height) {
@@ -268,13 +294,13 @@ class _contentsState extends State<contents> {
 
                           final response2 = await UserAPI(context: context)
                               .insertElasticSearchBoard(
-                            id: widget.boardPk,
-                            title: widget.title,
-                            creator: widget.creator,
-                            content: widget.content,
-                            like: newLikeValue,
-                            bookmark: bookmarkTmp,
-                          );
+                                  id: widget.boardPk,
+                                  title: widget.title,
+                                  creator: widget.creator,
+                                  content: widget.content,
+                                  like: newLikeValue,
+                                  bookmark: bookmarkTmp,
+                                  date: widget.date.toString());
 
                           if (response['statusCode'] == 200) {
                             setState(() {
@@ -319,13 +345,13 @@ class _contentsState extends State<contents> {
 
                             final response2 = await UserAPI(context: context)
                                 .insertElasticSearchBoard(
-                              id: widget.boardPk,
-                              title: widget.title,
-                              creator: widget.creator,
-                              content: widget.content,
-                              like: likeTmp,
-                              bookmark: newBookmarkValue,
-                            );
+                                    id: widget.boardPk,
+                                    title: widget.title,
+                                    creator: widget.creator,
+                                    content: widget.content,
+                                    like: likeTmp,
+                                    bookmark: newBookmarkValue,
+                                    date: widget.date.toString());
 
                             if (response['statusCode'] == 200) {
                               setState(() {
@@ -362,20 +388,20 @@ class _contentsState extends State<contents> {
 
                             final response2 = await UserAPI(context: context)
                                 .insertElasticSearchBoard(
-                              id: widget.boardPk,
-                              title: widget.title,
-                              creator: widget.creator,
-                              content: widget.content,
-                              like: likeTmp,
-                              bookmark: newBookmarkValue,
-                            );
+                                    id: widget.boardPk,
+                                    title: widget.title,
+                                    creator: widget.creator,
+                                    content: widget.content,
+                                    like: likeTmp,
+                                    bookmark: newBookmarkValue,
+                                    date: widget.date.toString());
 
                             if (response['statusCode'] == 200) {
                               setState(() {
                                 bookmarkTmp = newBookmarkValue;
                               });
                               print(response['statusCode']);
-                              print(response2);
+                              print(response);
                             } else {
                               print(response['statusCode']);
                             }
@@ -404,18 +430,18 @@ class _contentsState extends State<contents> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => BoardUpdatePage(
-                            pk: widget.pk,
-                            boardPk: boardPk,
-                            email: widget.email,
-                            sex: widget.sex,
-                            phone: widget.phone,
-                            title: widget.title,
-                            name: widget.name,
-                            creator: widget.creator,
-                            content: widget.content,
-                            like: likeTmp,
-                            bookmark: bookmarkTmp,
-                          )));
+                          pk: widget.pk,
+                          boardPk: boardPk,
+                          email: widget.email,
+                          sex: widget.sex,
+                          phone: widget.phone,
+                          title: widget.title,
+                          name: widget.name,
+                          creator: widget.creator,
+                          content: widget.content,
+                          like: likeTmp,
+                          bookmark: bookmarkTmp,
+                          date: widget.date)));
             },
             child: Text('UPDATE')),
         ElevatedButton(
@@ -531,16 +557,31 @@ class _contentsState extends State<contents> {
                       children: [
                         ...List.generate(
                             snapshot.data.length,
-                            (index) => ListTile(
-                                  leading: Text(
-                                    '${snapshot.data[index]['sbc_creator']}',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  title: Text(
-                                      '${snapshot.data[index]['sbc_content']}'),
-                                  onTap: () {},
+                            (index) => Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      '${DateFormat('yyyy년 MM월 dd일 HH:mm').format(DateTime.parse(snapshot.data[index]['sbc_date']).toLocal())}',
+                                      style: TextStyle(
+                                          fontSize: 11, color: Colors.grey),
+                                    ),
+                                    ListTile(
+                                      leading: Text(
+                                        '${snapshot.data[index]['sbc_creator']}',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      title: Text(
+                                          '${snapshot.data[index]['sbc_content']}'),
+                                      onTap: () {},
+                                    ),
+                                    Container(
+                                      width: widget.width,
+                                      height: 0.3,
+                                      color: Colors.grey[700],
+                                    )
+                                  ],
                                 )),
                         Row(
                           children: [
@@ -563,7 +604,9 @@ class _contentsState extends State<contents> {
                                 onPressed: () async {
                                   if (widget.pk == -1) {
                                     _showDialog(context, "로그인 후 이용 가능합니다.");
-                                  } else {
+                                  } else if(commentController.text.trim()==''){
+                                    _showDialog(context, '댓글 내용을 입력하세요.');
+                                  }else {
                                     await UserAPI(context: context)
                                         .createBoardComment(
                                             creator: widget.name,

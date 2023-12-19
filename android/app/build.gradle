@@ -21,7 +21,9 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+
 apply plugin: 'com.android.application'
+
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
@@ -34,6 +36,7 @@ android {
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+//        multiDexEnabled true
     }
 
     buildTypes {

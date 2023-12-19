@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'NoticeUpdatePage.dart';
 import '../../api/user_api.dart';
@@ -13,7 +14,8 @@ class NoticeDetailPage extends StatefulWidget {
       required this.phone,
       required this.title,
       required this.name,
-      required this.content})
+      required this.content,
+      required this.date})
       : super(key: key);
 
   int pk;
@@ -23,6 +25,7 @@ class NoticeDetailPage extends StatefulWidget {
   String title;
   String name;
   String content;
+  String date;
 
   @override
   _NoticeDetailPageState createState() => _NoticeDetailPageState();
@@ -71,7 +74,8 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
           sex: widget.sex,
           phone: widget.phone,
           name: widget.name,
-          content: widget.content),
+          content: widget.content,
+          date: widget.date),
     );
   }
 }
@@ -87,7 +91,8 @@ class contents extends StatefulWidget {
       required this.phone,
       required this.title,
       required this.name,
-      required this.content})
+      required this.content,
+      required this.date})
       : super(key: key);
 
   double width;
@@ -99,6 +104,7 @@ class contents extends StatefulWidget {
   String title;
   String name;
   String content;
+  String date;
 
   @override
   _contentsState createState() => _contentsState();
@@ -111,7 +117,7 @@ class _contentsState extends State<contents> {
       padding: const EdgeInsets.all(8.0),
       child: ListView(
         children: [
-          _title(widget.width, widget.height, widget.title),
+          _title(widget.width, widget.height, widget.title, widget.date),
           _creator(widget.width, widget.height, widget.name),
           _content(widget.width, widget.height, widget.content),
           _button(widget.pk)
@@ -120,27 +126,40 @@ class _contentsState extends State<contents> {
     );
   }
 
-  Widget _title(width, height, title) {
+  Widget _title(width, height, title, date) {
+    DateTime dateParsing = DateTime.parse(date).toLocal();
+    String dateFormat = DateFormat('yyyy년 MM월 dd일 HH:mm').format(dateParsing);
+
     return Container(
       width: width * 0.9,
-      height: height * 0.08,
-      child: Row(
+      height: height * 0.11,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(
-            "제목",
-            style: TextStyle(fontSize: 30),
-          ),
+          Text('$dateFormat'),
           SizedBox(
-            width: width * 0.03,
+            height: 12,
           ),
-          Container(
-            width: width * 0.78,
-            height: height * 0.05,
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 5),
-                borderRadius: BorderRadius.circular(10)),
-            child: Text(title),
-          )
+          Row(
+            children: [
+              Text(
+                "제목",
+                style: TextStyle(fontSize: 30),
+              ),
+              SizedBox(
+                width: width * 0.03,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 5.0),
+                width: width * 0.78,
+                height: height * 0.05,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.deepPurple, width: 2),
+                    borderRadius: BorderRadius.circular(5)),
+                child: Text(title,style: TextStyle(fontSize: 20)),
+              )
+            ],
+          ),
         ],
       ),
     );
@@ -160,12 +179,13 @@ class _contentsState extends State<contents> {
             width: width * 0.04,
           ),
           Container(
+              padding: EdgeInsets.symmetric(horizontal: 5.0),
               width: width * 0.7,
               height: height * 0.05,
               decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blue, width: 5),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Text(creator))
+                  border: Border.all(color: Colors.deepPurple, width: 2),
+                  borderRadius: BorderRadius.circular(5)),
+              child: Text(creator,style: TextStyle(fontSize: 20)))
         ],
       ),
     );
@@ -173,12 +193,13 @@ class _contentsState extends State<contents> {
 
   Widget _content(width, height, content) {
     return Container(
+        padding: EdgeInsets.symmetric(horizontal: 5.0),
         width: width * 0.9,
         height: height * 0.6,
         decoration: BoxDecoration(
-            border: Border.all(color: Colors.blue, width: 5),
-            borderRadius: BorderRadius.circular(10)),
-        child: Text(content));
+            border: Border.all(color: Colors.deepPurple, width: 2),
+            borderRadius: BorderRadius.circular(5)),
+        child: Text(content,style: TextStyle(fontSize: 20)));
   }
 
   Widget _button(pk) {
@@ -198,6 +219,7 @@ class _contentsState extends State<contents> {
                             title: widget.title,
                             name: widget.name,
                             content: widget.content,
+                            date: widget.date,
                           )));
             },
             child: Text('UPDATE')),

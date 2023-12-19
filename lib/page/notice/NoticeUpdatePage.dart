@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/page/notice/NoticeDetailPage.dart';
+import 'package:intl/intl.dart';
 
 import '../../api/user_api.dart';
 import '../../main.dart';
@@ -12,7 +14,8 @@ class NoticeUpdatePage extends StatefulWidget {
       required this.phone,
       required this.title,
       required this.name,
-      required this.content})
+      required this.content,
+      required this.date})
       : super(key: key);
 
   int pk;
@@ -22,6 +25,7 @@ class NoticeUpdatePage extends StatefulWidget {
   String title;
   String name;
   String content;
+  String date;
 
   @override
   _NoticeUpdatePageState createState() => _NoticeUpdatePageState();
@@ -61,7 +65,8 @@ class _NoticeUpdatePageState extends State<NoticeUpdatePage> {
           phone: widget.phone,
           title: widget.title,
           name: widget.name,
-          content: widget.content),
+          content: widget.content,
+          date: widget.date),
     );
   }
 }
@@ -77,7 +82,8 @@ class contents extends StatefulWidget {
       required this.phone,
       required this.title,
       required this.name,
-      required this.content})
+      required this.content,
+      required this.date})
       : super(key: key);
 
   double width;
@@ -89,6 +95,7 @@ class contents extends StatefulWidget {
   String title;
   String name;
   String content;
+  String date;
 
   @override
   _contentsState createState() => _contentsState();
@@ -111,7 +118,7 @@ class _contentsState extends State<contents> {
       padding: const EdgeInsets.all(8.0),
       child: ListView(
         children: [
-          _title(widget.width, widget.height),
+          _title(widget.width, widget.height, widget.date),
           _creator(widget.width, widget.height, widget.name),
           _content(widget.width, widget.height),
           _button(widget.pk)
@@ -120,31 +127,45 @@ class _contentsState extends State<contents> {
     );
   }
 
-  Widget _title(width, height) {
+  Widget _title(width, height, date) {
+    DateTime dateParse = DateTime.parse(date).toLocal();
+    String dateFormat = DateFormat('yyyy년 MM월 dd일 HH:mm').format(dateParse);
+
     return Container(
       width: width * 0.9,
-      height: height * 0.08,
-      child: Row(
+      height: height * 0.11,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(
-            "제목",
-            style: TextStyle(fontSize: 30),
-          ),
+          Text('$dateFormat'),
           SizedBox(
-            width: width * 0.03,
+            height: 12,
           ),
-          Container(
-            width: width * 0.78,
-            height: height * 0.05,
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 5),
-                borderRadius: BorderRadius.circular(10)),
-            child: TextField(
-              controller: titleController,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(border: InputBorder.none),
-            ),
-          )
+          Row(
+            children: [
+              Text(
+                "제목",
+                style: TextStyle(fontSize: 30),
+              ),
+              SizedBox(
+                width: width * 0.03,
+              ),
+              Container(
+                width: width * 0.78,
+                height: height * 0.05,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.deepPurple, width: 2),
+                    borderRadius: BorderRadius.circular(5)),
+                child: TextField(
+                  controller: titleController,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 5.0)),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -164,12 +185,16 @@ class _contentsState extends State<contents> {
             width: width * 0.04,
           ),
           Container(
+              padding: EdgeInsets.symmetric(horizontal: 5.0),
               width: width * 0.7,
               height: height * 0.05,
               decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blue, width: 5),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Text(creator))
+                  border: Border.all(color: Colors.deepPurple, width: 2),
+                  borderRadius: BorderRadius.circular(5)),
+              child: Text(
+                creator,
+                style: TextStyle(fontSize: 20),
+              ))
         ],
       ),
     );
@@ -180,12 +205,15 @@ class _contentsState extends State<contents> {
       width: width * 0.9,
       height: height * 0.6,
       decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue, width: 5),
-          borderRadius: BorderRadius.circular(10)),
+          border: Border.all(color: Colors.deepPurple, width: 2),
+          borderRadius: BorderRadius.circular(5)),
       child: TextField(
         controller: contentController,
-        keyboardType: TextInputType.text,
-        decoration: InputDecoration(border: InputBorder.none),
+        keyboardType: TextInputType.multiline,
+        maxLines: 3000,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(horizontal: 5.0)),
       ),
     );
   }
@@ -196,38 +224,67 @@ class _contentsState extends State<contents> {
       children: [
         ElevatedButton(
             onPressed: () async {
-              final response = await UserAPI(context: context).updateNotice(
-                  pk: pk,
-                  title: titleController.text,
-                  creator: widget.name,
-                  content: contentController.text);
-
-              final response2 = await UserAPI(context: context)
-                  .insertElasticSearchNotice(
-                      id: pk,
-                      title: titleController.text,
-                      creator: widget.name,
-                      content: contentController.text);
-
-              if (response['statusCode'] == 200) {
-                print(response['statusCode']);
+              if (titleController.text.trim() == '') {
+                _showDialog(context, '오류', '제목을 입력하세요.');
+              } else if (contentController.text.trim() == '') {
+                _showDialog(context, '오류', '내용을 입력하세요.');
               } else {
-                print(response['statusCode']);
-              }
+                final response = await UserAPI(context: context).updateNotice(
+                    pk: pk,
+                    title: titleController.text,
+                    creator: widget.name,
+                    content: contentController.text);
 
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => MyHomePage(
+                final response2 = await UserAPI(context: context)
+                    .insertElasticSearchNotice(
+                        id: pk,
+                        title: titleController.text,
+                        creator: widget.name,
+                        content: contentController.text,
+                        date: widget.date);
+
+                if (response['statusCode'] == 200) {
+                  print(response['statusCode']);
+                } else {
+                  print(response['statusCode']);
+                }
+
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => NoticeDetailPage(
                             pk: widget.pk,
                             email: widget.email,
-                            name: widget.name,
                             sex: widget.sex,
                             phone: widget.phone,
-                          )),
-                  (route) => false);
+                            title: widget.title,
+                            name: widget.name,
+                            content: widget.content,
+                            date: widget.date)),
+                    (route) => false);
+
+                _showDialog(context, '완료', '게시글이 수정 되었습니다.');
+              }
             },
             child: Text('UPDATE')),
       ],
     );
   }
+}
+
+Future<dynamic> _showDialog(
+    BuildContext context, String title, String content) {
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+            elevation: 10.0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(30))),
+            title: Text('$title'),
+            content: Text('$content'),
+            actions: [
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('확인'))
+            ],
+          ));
 }

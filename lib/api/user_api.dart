@@ -54,12 +54,15 @@ class UserAPI extends CommonAPI {
       {required int id,
       required String title,
       required String creator,
-      required String content}) async {
+      required String content,
+      required String date
+      }) async {
     final response = await post('apis3/insert', body: {
       "noticeId": id,
       "noticeTitle": title,
       "noticeCreator": creator,
       "noticeContent": content,
+      "noticeDate": date
     }, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
@@ -184,7 +187,8 @@ class UserAPI extends CommonAPI {
       required String creator,
       required String content,
       required int like,
-      required bool bookmark}) async {
+      required bool bookmark,
+      required String date}) async {
     final response = await post('apis2/insert', body: {
       "boardId": id,
       "boardTitle": title,
@@ -192,6 +196,7 @@ class UserAPI extends CommonAPI {
       "boardContent": content,
       "boardLike": like,
       "boardBookmark": bookmark,
+      "boardDate": date
     }, params: {}, headers: {});
     final result = jsonDecode(utf8.decode(response.bodyBytes));
     return result;
@@ -281,14 +286,14 @@ class UserAPI extends CommonAPI {
   }
 
   // 게시글 수정
-  Future<Map<String, dynamic>> updateBoard(
-      {required pk,
-      required String title,
-      required String creator,
-      required String content,
-      required int like,
-      required bool bookmark,
-      }) async {
+  Future<Map<String, dynamic>> updateBoard({
+    required pk,
+    required String title,
+    required String creator,
+    required String content,
+    required int like,
+    required bool bookmark,
+  }) async {
     final response = await post('sillim/board/$pk', body: {
       "sb_title": title,
       "sb_creator": creator,
@@ -314,16 +319,16 @@ class UserAPI extends CommonAPI {
   }
 
   // 게시글 댓글 생성
-  Future<Map<String, dynamic>> createBoardComment(
-      {required String creator,
-      required String content,
-      required int boardId,
-      required String boardTitle,
-      required String boardCreator,
-      required String boardContent,
-      required int boardLike,
-      required bool boardBookmark,
-      }) async {
+  Future<Map<String, dynamic>> createBoardComment({
+    required String creator,
+    required String content,
+    required int boardId,
+    required String boardTitle,
+    required String boardCreator,
+    required String boardContent,
+    required int boardLike,
+    required bool boardBookmark,
+  }) async {
     final response = await post('sillim/board/comment', body: {
       "sbc_creator": creator,
       "sbc_content": content,

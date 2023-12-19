@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "588639234861",
+    "project_id": "sillim-app",
+    "storage_bucket": "sillim-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588639234861:android:765de3b962fe4403cd81a4",
+        "android_client_info": {
+          "package_name": "com.example.flutter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGlhOWs_wxsDeJm8mqLvO7yJ3bXzD6uLI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

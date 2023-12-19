@@ -119,15 +119,17 @@ class _contentsState extends State<contents> {
           Container(
             width: width * 0.78,
             height: height * 0.05,
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 5),
-                borderRadius: BorderRadius.circular(10)),
-            child: TextField(
-              controller: title,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(border: InputBorder.none),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2.0),
+              child: TextFormField(
+                controller: title,
+                keyboardType: TextInputType.text,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 5.0)),
+              ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -150,8 +152,8 @@ class _contentsState extends State<contents> {
             width: width * 0.7,
             height: height * 0.05,
             decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 5),
-                borderRadius: BorderRadius.circular(10)),
+                border: Border.all(color: Colors.deepPurple, width: 2),
+                borderRadius: BorderRadius.circular(5)),
             child: Text(
               '${widget.name}',
               style: TextStyle(fontSize: 20),
@@ -166,14 +168,16 @@ class _contentsState extends State<contents> {
     return Container(
       width: width * 0.9,
       height: height * 0.6,
-      decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue, width: 5),
-          borderRadius: BorderRadius.circular(10)),
-      child: TextField(
-        controller: content,
-        keyboardType: TextInputType.multiline,
-        maxLines: null,
-        decoration: InputDecoration(border: InputBorder.none),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 2.0),
+        child: TextFormField(
+          controller: content,
+          keyboardType: TextInputType.multiline,
+          maxLines: 3000,
+          decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(horizontal: 5.0)),
+        ),
       ),
     );
   }
@@ -184,37 +188,64 @@ class _contentsState extends State<contents> {
       children: [
         ElevatedButton(
             onPressed: () async {
-              final response = await UserAPI(context: context).createBoard(
-                title: title.text,
-                creator: widget.name,
-                content: content.text,
-              );
+              //내용이 비어 있으면 다이얼로그 메세지
+              if (title.text.trim() == '') {
+                _showDialog(context,'오류' ,'제목을 입력하세요.');
+              } else if (content.text.trim()==''){
+                _showDialog(context,'오류','내용을 입력하세요.');
+              } else{
+                final response = await UserAPI(context: context).createBoard(
+                  title: title.text,
+                  creator: widget.name,
+                  content: content.text,
+                );
 
-              int id = response["obj"]["sb_id"];
+                int id = response["obj"]["sb_id"];
+                String date = response["obj"]["sb_date"];
 
-              final response2 = await UserAPI(context: context)
-                  .insertElasticSearchBoard(
-                      id: id,
-                      title: title.text,
-                      creator: widget.name,
-                      content: content.text,
-                      like: 0,
-                      bookmark: false,
-                      );
+                final response2 = await UserAPI(context: context)
+                    .insertElasticSearchBoard(
+                    id: id,
+                    title: title.text,
+                    creator: widget.name,
+                    content: content.text,
+                    like: 0,
+                    bookmark: false,
+                    date: date);
 
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => MyHomePage(
-                            pk: widget.pk,
-                            email: widget.email,
-                            name: widget.name,
-                            sex: widget.sex,
-                            phone: widget.phone,
-                          )),
-                  (route) => false);
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => MyHomePage(
+                          pk: widget.pk,
+                          email: widget.email,
+                          name: widget.name,
+                          sex: widget.sex,
+                          phone: widget.phone,
+                        )),
+                        (route) => false);
+
+                _showDialog(context,'완료','게시글이 생성 되었습니다.');
+              }
             },
             child: Text('CREATE')),
       ],
     );
   }
+}
+
+Future<dynamic> _showDialog(BuildContext context, String title, String content) {
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        elevation: 10.0,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(30))),
+        title: Text('$title'),
+        content: Text('$content'),
+        actions: [
+          ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('확인'))
+        ],
+      ));
 }
