@@ -187,6 +187,10 @@ class _contentsState extends State<contents> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
+                foregroundColor: MaterialStateProperty.all(Colors.white)
+            ),
             onPressed: () async {
               //내용이 비어 있으면 다이얼로그 메세지
               if (title.text.trim() == '') {
@@ -225,7 +229,7 @@ class _contentsState extends State<contents> {
                 _showDialog(context, '완료', '공지사항이 생성 되었습니다.');
               }
             },
-            child: Text('CREATE')),
+            child: Text('등록')),
       ],
     );
   }

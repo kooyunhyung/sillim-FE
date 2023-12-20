@@ -334,13 +334,13 @@ class _frameState extends State<frame> {
   Widget _buildTop() {
     return CarouselSlider(
       options: CarouselOptions(
-          height: 200.0,
-          autoPlay: true,
-          enableInfiniteScroll: true,
-          enlargeCenterPage: true,
-          autoPlayInterval: const Duration(seconds: 3),
+        height: 200.0,
+        autoPlay: true,
+        enableInfiniteScroll: true,
+        enlargeCenterPage: true,
+        autoPlayInterval: const Duration(seconds: 3),
 
-          // autoPlayAnimationDuration: Duration(seconds: 4)
+        // autoPlayAnimationDuration: Duration(seconds: 4)
       ),
       items: dummyItems.map((url) {
         //다섯 페이지
@@ -471,7 +471,7 @@ class BoardPage extends StatefulWidget {
       required this.phone})
       : super(key: key);
 
-  int pk;
+  int pk; // 내 email id
   String email;
   String name;
   String sex;
@@ -897,16 +897,20 @@ class _PopularBoardPageState extends State<PopularBoardPage> {
       children: [
         ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => BoardCreatePage(
-                            pk: widget.pk,
-                            email: widget.email,
-                            name: widget.name,
-                            sex: widget.sex,
-                            phone: widget.phone,
-                          )));
+              if (widget.pk == -1) {
+                _showDialog(context, '로그인 후 작성할 수 있습니다');
+              } else {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => BoardCreatePage(
+                              pk: widget.pk,
+                              email: widget.email,
+                              name: widget.name,
+                              sex: widget.sex,
+                              phone: widget.phone,
+                            )));
+              }
             },
             child: Text('게시글 작성')),
       ],
@@ -1026,16 +1030,20 @@ class _BookMarkedPageState extends State<BookMarkedPage> {
       children: [
         ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => BoardCreatePage(
-                            pk: widget.pk,
-                            email: widget.email,
-                            name: widget.name,
-                            sex: widget.sex,
-                            phone: widget.phone,
-                          )));
+              if (widget.pk == -1) {
+                _showDialog(context, '로그인 후 작성할 수 있습니다');
+              } else {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => BoardCreatePage(
+                              pk: widget.pk,
+                              email: widget.email,
+                              name: widget.name,
+                              sex: widget.sex,
+                              phone: widget.phone,
+                            )));
+              }
             },
             child: Text('게시글 작성')),
       ],
@@ -1147,13 +1155,16 @@ class _NoticePageState extends State<NoticePage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => NoticeDetailPage(
-                                          pk: snapshot.data[index]['sn_id'],
+                                          pk: widget.pk,
+                                          noticePk: snapshot.data[index]
+                                              ['sn_id'],
                                           email: widget.email,
                                           sex: widget.sex,
                                           phone: widget.phone,
                                           title: snapshot.data[index]
                                               ['sn_title'],
-                                          name: snapshot.data[index]
+                                          name: widget.name,
+                                          creator: snapshot.data[index]
                                               ['sn_creator'],
                                           content: snapshot.data[index]
                                               ['sn_content'],
@@ -1193,6 +1204,10 @@ class _NoticePageState extends State<NoticePage> {
               ),
             ),
           );
+        } else if (snapshot.data.length == 0) {
+          return Container(
+            child: Text('검색결과가 존재하지 않습니다'),
+          );
         } else {
           return Container(
             width: width,
@@ -1214,17 +1229,20 @@ class _NoticePageState extends State<NoticePage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => NoticeDetailPage(
-                                          pk: snapshot.data[index]['noticeId'],
+                                          pk: widget.pk,
+                                          noticePk: snapshot.data[index]
+                                              ['_source']['noticeId'],
                                           email: widget.email,
                                           sex: widget.sex,
                                           phone: widget.phone,
-                                          title: snapshot.data[index]
+                                          title: snapshot.data[index]['_source']
                                               ['noticeTitle'],
-                                          name: snapshot.data[index]
-                                              ['noticeCreator'],
+                                          name: widget.name,
+                                          creator: snapshot.data[index]
+                                              ['_source']['noticeCreator'],
                                           content: snapshot.data[index]
-                                              ['noticeContent'],
-                                          date: snapshot.data[index]
+                                              ['_source']['noticeContent'],
+                                          date: snapshot.data[index]['_source']
                                               ['noticeDate'],
                                         )));
                           },

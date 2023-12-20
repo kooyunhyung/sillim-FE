@@ -7,8 +7,8 @@ class APIConfig {
   APIConfig(this.host, {required this.version});
 }
 
-final host = APIConfig('https://8536-122-45-204-107.ngrok-free.app', version: 1);     // 8080 port
-final host2 = APIConfig('https://5901-122-45-204-107.ngrok-free.app', version: 1);    // 9200 port
+final host = APIConfig('https://0919-122-45-204-107.ngrok-free.app', version: 1);     // 8080 port
+final host2 = APIConfig('https://28ae-122-45-204-107.ngrok-free.app', version: 1);    // 9200 port
 
 
 String getQueryString(Map params,

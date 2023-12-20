@@ -8,22 +8,26 @@ import '../../main.dart';
 class NoticeDetailPage extends StatefulWidget {
   NoticeDetailPage(
       {Key? key,
-      required this.pk,
+        required this.pk,
+      required this.noticePk,
       required this.email,
       required this.sex,
       required this.phone,
       required this.title,
       required this.name,
+      required this.creator,
       required this.content,
       required this.date})
       : super(key: key);
 
   int pk;
+  int noticePk;
   String email;
   String sex;
   String phone;
   String title;
   String name;
+  String creator;
   String content;
   String date;
 
@@ -37,45 +41,65 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(45.0),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: Colors.black,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) {
+        if (didPop) {
+          return;
+        }
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => MyHomePage(
+                  pk: widget.pk,
+                  email: widget.email,
+                  name: widget.name,
+                  sex: widget.sex,
+                  phone: widget.phone,
+                )));
+      },
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(45.0),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: Colors.black,
+              ),
+              onPressed: () => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MyHomePage(
+                            pk: widget.pk,
+                            email: widget.email,
+                            name: widget.name,
+                            sex: widget.sex,
+                            phone: widget.phone,
+                          ))),
             ),
-            onPressed: () => Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => MyHomePage(
-                          pk: widget.pk,
-                          email: widget.email,
-                          name: widget.name,
-                          sex: widget.sex,
-                          phone: widget.phone,
-                        ))),
+            title: Text(
+              '공지사항',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+            ),
+            centerTitle: true,
           ),
-          title: Text(
-            '공지사항',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-          ),
-          centerTitle: true,
         ),
+        body: contents(
+            width: width,
+            height: height,
+            title: widget.title,
+            pk:widget.pk,
+            noticePk: widget.noticePk,
+            email: widget.email,
+            sex: widget.sex,
+            phone: widget.phone,
+            name: widget.name,
+            creator: widget.creator,
+            content: widget.content,
+            date: widget.date),
       ),
-      body: contents(
-          width: width,
-          height: height,
-          title: widget.title,
-          pk: widget.pk,
-          email: widget.email,
-          sex: widget.sex,
-          phone: widget.phone,
-          name: widget.name,
-          content: widget.content,
-          date: widget.date),
     );
   }
 }
@@ -86,11 +110,13 @@ class contents extends StatefulWidget {
       required this.width,
       required this.height,
       required this.pk,
+        required this.noticePk,
       required this.email,
       required this.sex,
       required this.phone,
       required this.title,
       required this.name,
+      required this.creator,
       required this.content,
       required this.date})
       : super(key: key);
@@ -98,11 +124,13 @@ class contents extends StatefulWidget {
   double width;
   double height;
   int pk;
+  int noticePk;
   String email;
   String sex;
   String phone;
   String title;
   String name;
+  String creator;
   String content;
   String date;
 
@@ -118,9 +146,9 @@ class _contentsState extends State<contents> {
       child: ListView(
         children: [
           _title(widget.width, widget.height, widget.title, widget.date),
-          _creator(widget.width, widget.height, widget.name),
+          _creator(widget.width, widget.height, widget.creator),
           _content(widget.width, widget.height, widget.content),
-          _button(widget.pk)
+          _button(widget.noticePk)
         ],
       ),
     );
@@ -156,7 +184,7 @@ class _contentsState extends State<contents> {
                 decoration: BoxDecoration(
                     border: Border.all(color: Colors.deepPurple, width: 2),
                     borderRadius: BorderRadius.circular(5)),
-                child: Text(title,style: TextStyle(fontSize: 20)),
+                child: Text(title, style: TextStyle(fontSize: 20)),
               )
             ],
           ),
@@ -185,7 +213,7 @@ class _contentsState extends State<contents> {
               decoration: BoxDecoration(
                   border: Border.all(color: Colors.deepPurple, width: 2),
                   borderRadius: BorderRadius.circular(5)),
-              child: Text(creator,style: TextStyle(fontSize: 20)))
+              child: Text(creator, style: TextStyle(fontSize: 20)))
         ],
       ),
     );
@@ -199,56 +227,88 @@ class _contentsState extends State<contents> {
         decoration: BoxDecoration(
             border: Border.all(color: Colors.deepPurple, width: 2),
             borderRadius: BorderRadius.circular(5)),
-        child: Text(content,style: TextStyle(fontSize: 20)));
+        child: Text(content, style: TextStyle(fontSize: 20)));
   }
 
-  Widget _button(pk) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => NoticeUpdatePage(
-                            pk: pk,
-                            email: widget.email,
-                            sex: widget.sex,
-                            phone: widget.phone,
-                            title: widget.title,
-                            name: widget.name,
-                            content: widget.content,
-                            date: widget.date,
-                          )));
-            },
-            child: Text('UPDATE')),
-        ElevatedButton(
-            onPressed: () async {
-              final response =
-                  await UserAPI(context: context).deleteNotice(pk: pk);
+  Widget _button(noticePk) {
+    return (widget.name == widget.creator)
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
+                      foregroundColor: MaterialStateProperty.all(Colors.white)
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NoticeUpdatePage(
+                              pk: widget.pk,
+                                  noticePk: noticePk,
+                                  email: widget.email,
+                                  sex: widget.sex,
+                                  phone: widget.phone,
+                                  title: widget.title,
+                                  name: widget.name,
+                                  creator: widget.creator,
+                                  content: widget.content,
+                                  date: widget.date,
+                                )));
+                  },
+                  child: Text('수정')),
+              ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.redAccent),
+                      foregroundColor: MaterialStateProperty.all(Colors.white)
+                  ),
+                  onPressed: () async {
+                    final response =
+                        await UserAPI(context: context).deleteNotice(pk: noticePk);
 
-              UserAPI(context: context).deleteElasticSearchNotice(pk: pk);
+                    UserAPI(context: context).deleteElasticSearchNotice(pk: noticePk);
 
-              if (response['statusCode'] == 200) {
-                print(response['statusCode']);
-              } else {
-                print(response['statusCode']);
-              }
+                    if (response['statusCode'] == 200) {
+                      print(response['statusCode']);
+                    } else {
+                      print(response['statusCode']);
+                    }
 
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => MyHomePage(
-                            pk: widget.pk,
-                            email: widget.email,
-                            name: widget.name,
-                            sex: widget.sex,
-                            phone: widget.phone,
-                          )),
-                  (route) => false);
-            },
-            child: Text('DELETE')),
-      ],
-    );
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => MyHomePage(
+                                  pk: widget.pk,
+                                  email: widget.email,
+                                  name: widget.name,
+                                  sex: widget.sex,
+                                  phone: widget.phone,
+                                )),
+                        (route) => false);
+
+                    _showDialog(context, "완료", "공지사항이 삭제 되었습니다.");
+                  },
+
+                  child: Text('삭제')),
+            ],
+          )
+        : Container();
+  }
+
+  Future<dynamic> _showDialog(BuildContext context, String title, String content) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          elevation: 10.0,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(30))),
+          title: Text('$title'),
+          content: Text('$content'),
+          actions: [
+            ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('확인'))
+          ],
+        ));
   }
 }

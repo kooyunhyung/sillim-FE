@@ -262,7 +262,10 @@ class _contentsState extends State<contents> {
         decoration: BoxDecoration(
             border: Border.all(color: Colors.deepPurple, width: 2),
             borderRadius: BorderRadius.circular(5)),
-        child: Text(content,style: TextStyle(fontSize: 15),));
+        child: Text(
+          content,
+          style: TextStyle(fontSize: 15),
+        ));
   }
 
   Widget _like_bookmark(width, height) {
@@ -278,7 +281,7 @@ class _contentsState extends State<contents> {
                 InkWell(
                     onTap: () async {
                       if (widget.pk == -1) {
-                        _showDialog(context, "로그인 후 이용 가능합니다.");
+                        _showDialog(context, "오류" ,"로그인 후 이용 가능합니다.");
                       } else {
                         int newLikeValue = likeTmp + 1;
                         try {
@@ -330,39 +333,43 @@ class _contentsState extends State<contents> {
                 bookmarkTmp
                     ? InkWell(
                         onTap: () async {
-                          bool newBookmarkValue = !bookmarkTmp;
+                          if (widget.pk == -1) {
+                            _showDialog(context, "오류" ,"로그인 후 이용 가능합니다.");
+                          } else{
+                            bool newBookmarkValue = !bookmarkTmp;
 
-                          try {
-                            final response =
-                                await UserAPI(context: context).updateBoard(
-                              pk: widget.boardPk,
-                              title: widget.title,
-                              creator: widget.creator,
-                              content: widget.content,
-                              like: likeTmp,
-                              bookmark: newBookmarkValue,
-                            );
+                            try {
+                              final response =
+                              await UserAPI(context: context).updateBoard(
+                                pk: widget.boardPk,
+                                title: widget.title,
+                                creator: widget.creator,
+                                content: widget.content,
+                                like: likeTmp,
+                                bookmark: newBookmarkValue,
+                              );
 
-                            final response2 = await UserAPI(context: context)
-                                .insertElasticSearchBoard(
-                                    id: widget.boardPk,
-                                    title: widget.title,
-                                    creator: widget.creator,
-                                    content: widget.content,
-                                    like: likeTmp,
-                                    bookmark: newBookmarkValue,
-                                    date: widget.date.toString());
+                              final response2 = await UserAPI(context: context)
+                                  .insertElasticSearchBoard(
+                                  id: widget.boardPk,
+                                  title: widget.title,
+                                  creator: widget.creator,
+                                  content: widget.content,
+                                  like: likeTmp,
+                                  bookmark: newBookmarkValue,
+                                  date: widget.date.toString());
 
-                            if (response['statusCode'] == 200) {
-                              setState(() {
-                                bookmarkTmp = newBookmarkValue;
-                              });
-                              print(response['statusCode']);
-                            } else {
-                              print(response['statusCode']);
+                              if (response['statusCode'] == 200) {
+                                setState(() {
+                                  bookmarkTmp = newBookmarkValue;
+                                });
+                                print(response['statusCode']);
+                              } else {
+                                print(response['statusCode']);
+                              }
+                            } catch (error) {
+                              print('Error: $error');
                             }
-                          } catch (error) {
-                            print('Error: $error');
                           }
                         },
                         child: Icon(
@@ -373,40 +380,44 @@ class _contentsState extends State<contents> {
                       )
                     : InkWell(
                         onTap: () async {
-                          bool newBookmarkValue = !bookmarkTmp;
+                          if (widget.pk == -1) {
+                            _showDialog(context, "오류" ,"로그인 후 이용 가능합니다.");
+                          } else {
+                            bool newBookmarkValue = !bookmarkTmp;
 
-                          try {
-                            final response =
-                                await UserAPI(context: context).updateBoard(
-                              pk: widget.boardPk,
-                              title: widget.title,
-                              creator: widget.creator,
-                              content: widget.content,
-                              like: likeTmp,
-                              bookmark: newBookmarkValue,
-                            );
+                            try {
+                              final response =
+                              await UserAPI(context: context).updateBoard(
+                                pk: widget.boardPk,
+                                title: widget.title,
+                                creator: widget.creator,
+                                content: widget.content,
+                                like: likeTmp,
+                                bookmark: newBookmarkValue,
+                              );
 
-                            final response2 = await UserAPI(context: context)
-                                .insertElasticSearchBoard(
-                                    id: widget.boardPk,
-                                    title: widget.title,
-                                    creator: widget.creator,
-                                    content: widget.content,
-                                    like: likeTmp,
-                                    bookmark: newBookmarkValue,
-                                    date: widget.date.toString());
+                              final response2 = await UserAPI(context: context)
+                                  .insertElasticSearchBoard(
+                                  id: widget.boardPk,
+                                  title: widget.title,
+                                  creator: widget.creator,
+                                  content: widget.content,
+                                  like: likeTmp,
+                                  bookmark: newBookmarkValue,
+                                  date: widget.date.toString());
 
-                            if (response['statusCode'] == 200) {
-                              setState(() {
-                                bookmarkTmp = newBookmarkValue;
-                              });
-                              print(response['statusCode']);
-                              print(response);
-                            } else {
-                              print(response['statusCode']);
+                              if (response['statusCode'] == 200) {
+                                setState(() {
+                                  bookmarkTmp = newBookmarkValue;
+                                });
+                                print(response['statusCode']);
+                                print(response);
+                              } else {
+                                print(response['statusCode']);
+                              }
+                            } catch (error) {
+                              print('Error: $error');
                             }
-                          } catch (error) {
-                            print('Error: $error');
                           }
                         },
                         child: Icon(
@@ -421,61 +432,74 @@ class _contentsState extends State<contents> {
   }
 
   Widget _button(boardPk) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => BoardUpdatePage(
-                          pk: widget.pk,
-                          boardPk: boardPk,
-                          email: widget.email,
-                          sex: widget.sex,
-                          phone: widget.phone,
-                          title: widget.title,
-                          name: widget.name,
-                          creator: widget.creator,
-                          content: widget.content,
-                          like: likeTmp,
-                          bookmark: bookmarkTmp,
-                          date: widget.date)));
-            },
-            child: Text('UPDATE')),
-        ElevatedButton(
-            onPressed: () async {
-              try {
-                final response =
-                    await UserAPI(context: context).deleteBoard(pk: boardPk);
-                UserAPI(context: context).deleteElasticSearchBoard(pk: boardPk);
+    return (widget.name == widget.creator)
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
+                      foregroundColor: MaterialStateProperty.all(Colors.white)
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => BoardUpdatePage(
+                                pk: widget.pk,
+                                boardPk: boardPk,
+                                email: widget.email,
+                                sex: widget.sex,
+                                phone: widget.phone,
+                                title: widget.title,
+                                name: widget.name,
+                                creator: widget.creator,
+                                content: widget.content,
+                                like: likeTmp,
+                                bookmark: bookmarkTmp,
+                                date: widget.date)));
+                  },
+                  child: Text('수정')),
+              ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.redAccent),
+                      foregroundColor: MaterialStateProperty.all(Colors.white)
+                  ),
+                  onPressed: () async {
+                    try {
+                      final response = await UserAPI(context: context)
+                          .deleteBoard(pk: boardPk);
+                      UserAPI(context: context)
+                          .deleteElasticSearchBoard(pk: boardPk);
 
-                if (response['statusCode'] == 200) {
-                  print(response['statusCode']);
-                } else {
-                  print(response['statusCode']);
-                }
+                      if (response['statusCode'] == 200) {
+                        print(response['statusCode']);
+                      } else {
+                        print(response['statusCode']);
+                      }
 
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => MyHomePage(
-                            pk: widget.pk,
-                            email: widget.email,
-                            name: widget.name,
-                            sex: widget.sex,
-                            phone: widget.phone,
-                          )),
-                  (route) => false,
-                );
-              } catch (e) {
-                print('Error: $e');
-                // Handle the error appropriately
-              }
-            },
-            child: Text('DELETE')),
-      ],
-    );
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => MyHomePage(
+                                  pk: widget.pk,
+                                  email: widget.email,
+                                  name: widget.name,
+                                  sex: widget.sex,
+                                  phone: widget.phone,
+                                )),
+                        (route) => false,
+                      );
+
+                      _showDialog(context, "완료", "게시글이 삭제 되었습니다.");
+                    } catch (e) {
+                      print('Error: $e');
+                      // Handle the error appropriately
+                    }
+                  },
+                  child: Text('삭제')),
+            ],
+          )
+        : Container();
   }
 
   Widget _comment(boardPk) {
@@ -603,10 +627,11 @@ class _contentsState extends State<contents> {
                             ElevatedButton(
                                 onPressed: () async {
                                   if (widget.pk == -1) {
-                                    _showDialog(context, "로그인 후 이용 가능합니다.");
-                                  } else if(commentController.text.trim()==''){
-                                    _showDialog(context, '댓글 내용을 입력하세요.');
-                                  }else {
+                                    _showDialog(context,"오류" ,"로그인 후 이용 가능합니다.");
+                                  } else if (commentController.text.trim() ==
+                                      '') {
+                                    _showDialog(context,"오류" ,'댓글 내용을 입력하세요.');
+                                  } else {
                                     await UserAPI(context: context)
                                         .createBoardComment(
                                             creator: widget.name,
@@ -640,20 +665,20 @@ class _contentsState extends State<contents> {
     return boardCommentList;
   }
 
-  Future<dynamic> _showDialog(BuildContext context, String text) {
+  Future<dynamic> _showDialog(BuildContext context, String title, String content) {
     return showDialog(
         context: context,
         builder: (BuildContext context) => AlertDialog(
-              elevation: 10.0,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(30))),
-              title: Text('오류'),
-              content: Text('$text'),
-              actions: [
-                ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text('확인'))
-              ],
-            ));
+          elevation: 10.0,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(30))),
+          title: Text('$title'),
+          content: Text('$content'),
+          actions: [
+            ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('확인'))
+          ],
+        ));
   }
 }

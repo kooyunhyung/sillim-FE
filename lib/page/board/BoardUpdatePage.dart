@@ -239,6 +239,10 @@ class _contentsState extends State<contents> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
+                foregroundColor: MaterialStateProperty.all(Colors.white)
+            ),
             onPressed: () async {
 
               if (titleController.text.trim()=='') {
@@ -292,7 +296,7 @@ class _contentsState extends State<contents> {
                 _showDialog(context,'완료','게시글이 수정 되었습니다.');
               }
             },
-            child: Text('UPDATE')),
+            child: Text('등록')),
       ],
     );
   }

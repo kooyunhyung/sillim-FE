@@ -8,22 +8,26 @@ import '../../main.dart';
 class NoticeUpdatePage extends StatefulWidget {
   NoticeUpdatePage(
       {Key? key,
-      required this.pk,
+        required this.pk,
+      required this.noticePk,
       required this.email,
       required this.sex,
       required this.phone,
       required this.title,
-      required this.name,
+        required this.name,
+      required this.creator,
       required this.content,
       required this.date})
       : super(key: key);
 
   int pk;
+  int noticePk;
   String email;
   String sex;
   String phone;
   String title;
   String name;
+  String creator;
   String content;
   String date;
 
@@ -60,11 +64,13 @@ class _NoticeUpdatePageState extends State<NoticeUpdatePage> {
           width: width,
           height: height,
           pk: widget.pk,
+          noticePk: widget.noticePk,
           email: widget.email,
           sex: widget.sex,
           phone: widget.phone,
           title: widget.title,
           name: widget.name,
+          creator: widget.creator,
           content: widget.content,
           date: widget.date),
     );
@@ -77,11 +83,13 @@ class contents extends StatefulWidget {
       required this.width,
       required this.height,
       required this.pk,
+        required this.noticePk,
       required this.email,
       required this.sex,
       required this.phone,
       required this.title,
       required this.name,
+        required this.creator,
       required this.content,
       required this.date})
       : super(key: key);
@@ -89,11 +97,13 @@ class contents extends StatefulWidget {
   double width;
   double height;
   int pk;
+  int noticePk;
   String email;
   String sex;
   String phone;
   String title;
   String name;
+  String creator;
   String content;
   String date;
 
@@ -119,7 +129,7 @@ class _contentsState extends State<contents> {
       child: ListView(
         children: [
           _title(widget.width, widget.height, widget.date),
-          _creator(widget.width, widget.height, widget.name),
+          _creator(widget.width, widget.height, widget.creator),
           _content(widget.width, widget.height),
           _button(widget.pk)
         ],
@@ -223,6 +233,10 @@ class _contentsState extends State<contents> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
+                foregroundColor: MaterialStateProperty.all(Colors.white)
+            ),
             onPressed: () async {
               if (titleController.text.trim() == '') {
                 _showDialog(context, '오류', '제목을 입력하세요.');
@@ -252,12 +266,14 @@ class _contentsState extends State<contents> {
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => NoticeDetailPage(
-                            pk: widget.pk,
+                          pk: widget.pk,
+                            noticePk: widget.noticePk,
                             email: widget.email,
                             sex: widget.sex,
                             phone: widget.phone,
                             title: widget.title,
                             name: widget.name,
+                            creator: widget.creator,
                             content: widget.content,
                             date: widget.date)),
                     (route) => false);
@@ -265,7 +281,7 @@ class _contentsState extends State<contents> {
                 _showDialog(context, '완료', '게시글이 수정 되었습니다.');
               }
             },
-            child: Text('UPDATE')),
+            child: Text('등록')),
       ],
     );
   }
