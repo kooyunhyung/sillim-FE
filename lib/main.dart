@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +10,8 @@ import 'page/login/LoginPage.dart';
 import 'page/notice/NoticeCreatePage.dart';
 import 'page/notice/NoticeDetailPage.dart';
 
-final dummyItems = [
+// 신림동 이미지 자료
+final sillimImages = [
   'https://www.housingherald.co.kr/news/photo/202109/42098_18894_922.jpg',
   'https://img.seoul.co.kr/img/upload/2023/08/28/SSC_20230828180347_V.jpg',
   'https://cdn.rcnews.co.kr/news/photo/202306/31797_32539_4734.jpg',
@@ -33,6 +32,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      // 초기 입력 데이터 (비로그인 유저의 정보)
       home: MyHomePage(
         pk: -1,
         email: "",
@@ -65,8 +65,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _drawerIndex = 0; // Drawer 인덱스 0,1,2
+  int _drawerIndex = 0;   // Drawer 인덱스 0,1,2
 
+  // Drawer 메뉴 선택시 호출되는 함수 (_drawerIndex 변경)
   void _onItemTapped(int index) {
     setState(() {
       _drawerIndex = index;
@@ -87,6 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       bottomRight: Radius.circular(15)),
                   color: Colors.indigo,
                 ),
+                // 비로그인 유저인지 아닌지에 따라 띄우는 위젯 다름
                 child: widget.pk == -1
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => LoginPage()));
+                                          builder: (context) => LoginPage()));      //로그인 페이지로 이동
                                 },
                                 child: Row(
                                   children: [
@@ -132,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => JoinPage()));
+                                          builder: (context) => JoinPage()));       // 회원가입 페이지로 이동
                                 },
                                 child: Row(
                                   children: [
@@ -169,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onTap: () {
                                   Navigator.of(context).pushAndRemoveUntil(
                                       MaterialPageRoute(
-                                          builder: (context) => MyHomePage(
+                                          builder: (context) => MyHomePage(             // 로그아웃 ==> 정보 초기화
                                                 pk: -1,
                                                 email: "",
                                                 name: "",
@@ -261,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true, //제목을 가운데로
+        centerTitle: true,    //제목을 가운데로
       ),
       body: frame(
           pk: widget.pk,
@@ -273,6 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+// 4개의 배너 버튼 (전체글, 인기글, 즐겨찾기, 공지사항) 을 위한 프레임 클래스 작성
 class frame extends StatefulWidget {
   frame(
       {Key? key,
@@ -294,7 +297,7 @@ class frame extends StatefulWidget {
 }
 
 class _frameState extends State<frame> {
-  var _index = 0; //페이지 인덱스 0,1,2
+  var _bannerIndex = 0;     //배너 메뉴 인덱스 0,1,2
 
   @override
   Widget build(BuildContext context) {
@@ -304,33 +307,33 @@ class _frameState extends State<frame> {
           email: widget.email,
           name: widget.name,
           sex: widget.sex,
-          phone: widget.phone), // 전체글
+          phone: widget.phone),     // 전체글
       PopularBoardPage(
           pk: widget.pk,
           email: widget.email,
           name: widget.name,
           sex: widget.sex,
-          phone: widget.phone), // 인기글
+          phone: widget.phone),     // 인기글
       BookMarkedPage(
           pk: widget.pk,
           email: widget.email,
           name: widget.name,
           sex: widget.sex,
-          phone: widget.phone), // 즐겨찬기
+          phone: widget.phone),     // 즐겨찬기
       NoticePage(
           pk: widget.pk,
           email: widget.email,
           name: widget.name,
           sex: widget.sex,
-          phone: widget.phone) // 전체공지
+          phone: widget.phone)      // 전체공지
     ];
 
     return ListView(
-      children: [_buildTop(), _buildMiddle(context), _pages[_index]],
+      children: [_buildTop(), _buildMiddle(context), _pages[_bannerIndex]],
     );
   }
 
-  // 상단
+  // 상단 (신림동 배경 이미지)
   Widget _buildTop() {
     return CarouselSlider(
       options: CarouselOptions(
@@ -339,17 +342,14 @@ class _frameState extends State<frame> {
         enableInfiniteScroll: true,
         enlargeCenterPage: true,
         autoPlayInterval: const Duration(seconds: 3),
-
-        // autoPlayAnimationDuration: Duration(seconds: 4)
       ),
-      items: dummyItems.map((url) {
-        //다섯 페이지
+      items: sillimImages.map((url) {
+        //세 페이지
         return Builder(
           builder: (BuildContext context) {
-            //context를 사용하고자 할 때
             return Container(
-                width: MediaQuery.of(context).size.width, //기기의 가로 길이
-                margin: EdgeInsets.symmetric(horizontal: 5.0), //좌우 여백 5
+                width: MediaQuery.of(context).size.width,       //기기의 가로 길이
+                margin: EdgeInsets.symmetric(horizontal: 5.0),  //좌우 여백 5
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
                   child: Image.network(
@@ -363,85 +363,86 @@ class _frameState extends State<frame> {
     );
   }
 
-  // 중단
+  // 중단 (배너 메뉴)
   Widget _buildMiddle(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 20), //위, 아래 여백
+      padding: const EdgeInsets.only(top: 20, bottom: 20),      //위, 아래 여백
       child: Column(
         children: [
+          // 선택된 메뉴에 따라 활성화되는 글자 색, 밑줄 여부
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               InkWell(
                 onTap: () {
                   setState(() {
-                    _index = 0;
+                    _bannerIndex = 0;
                   });
                 },
                 child: Text(
                   '전체글',
                   style: TextStyle(
-                      decoration: _index == 0
+                      decoration: _bannerIndex == 0
                           ? TextDecoration.underline
                           : TextDecoration.none,
                       decorationColor: Colors.deepPurple,
                       decorationThickness: 5,
                       fontSize: 21,
-                      color: _index == 0 ? Colors.deepPurple : Colors.black),
+                      color: _bannerIndex == 0 ? Colors.deepPurple : Colors.black),
                 ),
               ),
               InkWell(
                 onTap: () {
                   setState(() {
-                    _index = 1;
+                    _bannerIndex = 1;
                   });
                 },
                 child: Text(
                   '인기글',
                   style: TextStyle(
-                      decoration: _index == 1
+                      decoration: _bannerIndex == 1
                           ? TextDecoration.underline
                           : TextDecoration.none,
                       decorationColor: Colors.deepPurple,
                       decorationThickness: 5,
                       fontSize: 21,
-                      color: _index == 1 ? Colors.deepPurple : Colors.black),
+                      color: _bannerIndex == 1 ? Colors.deepPurple : Colors.black),
                 ),
               ),
               InkWell(
                 onTap: () {
                   setState(() {
-                    _index = 2;
+                    _bannerIndex = 2;
                   });
                 },
                 child: Text(
                   '즐겨찾기',
                   style: TextStyle(
-                      decoration: _index == 2
+                      decoration: _bannerIndex == 2
                           ? TextDecoration.underline
                           : TextDecoration.none,
                       decorationColor: Colors.deepPurple,
                       decorationThickness: 5,
                       fontSize: 21,
-                      color: _index == 2 ? Colors.deepPurple : Colors.black),
+                      color: _bannerIndex == 2 ? Colors.deepPurple : Colors.black),
                 ),
               ),
               InkWell(
                 onTap: () {
                   setState(() {
-                    _index = 3;
+                    _bannerIndex = 3;
                   });
                 },
                 child: Text(
                   '전체공지',
                   style: TextStyle(
-                      decoration: _index == 3
+                      decoration: _bannerIndex == 3
                           ? TextDecoration.underline
                           : TextDecoration.none,
                       decorationColor: Colors.deepPurple,
                       decorationThickness: 5,
                       fontSize: 21,
-                      color: _index == 3 ? Colors.deepPurple : Colors.black),
+                      color: _bannerIndex == 3 ? Colors.deepPurple : Colors.black),
                 ),
               ),
             ],
@@ -460,7 +461,7 @@ class _frameState extends State<frame> {
   }
 }
 
-// 전체글
+// 전체 게시글 페이지
 class BoardPage extends StatefulWidget {
   BoardPage(
       {Key? key,
@@ -482,18 +483,19 @@ class BoardPage extends StatefulWidget {
 }
 
 class _BoardPageState extends State<BoardPage> {
-  var _index = 0; // 일반 글이냐 검색된 글이냐
+  var _isSearched = 0;       // 일반 글이냐 검색된 글이냐 (0번이면 일반글, 1번이면 검색된 글) => 페이지 인덱스에 사용
 
-  final _search_condition = ['제목', '작성자', '내용'];
+  final _searchCondition = ['제목', '작성자', '내용'];
   String? _selectedCondition;
 
+  // 검색 텍스트 컨트롤러
   TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      _selectedCondition = _search_condition[0];
+      _selectedCondition = _searchCondition[0];
     });
   }
 
@@ -501,19 +503,21 @@ class _BoardPageState extends State<BoardPage> {
   Widget build(BuildContext context) {
     var _pages = [_buildBottomAll(context), _buildBottomSearched(context)];
 
+    // 앱 화면 크기
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
     return Column(
-      children: [_pages[_index], _buildButton(context, width, height)],
+      children: [_pages[_isSearched], _buildButton(context, width, height)],
     );
   }
 
-  // 하단 (전체글 불러오기)
+  // 하단 (전체 게시글 불러오기)
   Widget _buildBottomAll(context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
+    // 전체 게시글 불러오기 API 통해서 불러온 정보 반환
     return FutureBuilder(
       future: _fetchBoards(context),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -554,7 +558,7 @@ class _BoardPageState extends State<BoardPage> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => BoardDetailPage(
+                                    builder: (context) => BoardDetailPage(                  // 세부 게시글 페이지로 이동
                                           pk: widget.pk,
                                           boardPk: snapshot.data[index]
                                               ['sb_id'],
@@ -588,6 +592,7 @@ class _BoardPageState extends State<BoardPage> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
+    // Elastic Search API 통한 Elastic Search 작동에 의해 불러지는 검색된 게시글
     return FutureBuilder(
       future: _fetchBoardsSearched(context),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -608,7 +613,7 @@ class _BoardPageState extends State<BoardPage> {
               ),
             ),
           );
-        } else if (snapshot.data.length == 0) {
+        } else if (snapshot.data.length == 0) {               // 검색 결과가 아무 것도 없을때
           return Container(
             child: Text('검색결과가 존재하지 않습니다'),
           );
@@ -663,6 +668,7 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
+  // 게시글 생성 버튼 + 검색 창
   Widget _buildButton(context, width, height) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -701,7 +707,7 @@ class _BoardPageState extends State<BoardPage> {
                 child: DropdownButton(
                     underline: SizedBox.shrink(),
                     value: _selectedCondition,
-                    items: _search_condition
+                    items: _searchCondition
                         .map((e) => DropdownMenuItem(
                               value: e,
                               child: Text(e),
@@ -737,7 +743,7 @@ class _BoardPageState extends State<BoardPage> {
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    _index = 1;
+                    _isSearched = 1;              // 검색시 인덱스 번호를 1로 바꿈으로써 검색된 페이지가 뜨도록 함
                   });
                 },
                 child: Container(
@@ -761,12 +767,14 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
+  // 전체 게시글 불러오는 API 호출
   Future<dynamic> _fetchBoards(context) async {
     dynamic boardList = await UserAPI(context: context).readBoards();
     print(boardList);
     return boardList;
   }
 
+  // 검색된 게시글 불러오는 API 호출 (검색 조건별 호출 다름)
   Future<dynamic> _fetchBoardsSearched(context) async {
     if (_selectedCondition == '제목') {
       dynamic searchedBoard = await UserAPI(context: context)
@@ -789,6 +797,7 @@ class _BoardPageState extends State<BoardPage> {
   }
 }
 
+// 인기글 페이지
 class PopularBoardPage extends StatefulWidget {
   PopularBoardPage(
       {Key? key,
@@ -924,6 +933,7 @@ class _PopularBoardPageState extends State<PopularBoardPage> {
   }
 }
 
+// 즐겨찾기 페이지
 class BookMarkedPage extends StatefulWidget {
   BookMarkedPage(
       {Key? key,
@@ -1057,6 +1067,7 @@ class _BookMarkedPageState extends State<BookMarkedPage> {
   }
 }
 
+// 공지사항 페이지
 class NoticePage extends StatefulWidget {
   NoticePage(
       {Key? key,
@@ -1078,8 +1089,8 @@ class NoticePage extends StatefulWidget {
 }
 
 class _NoticePageState extends State<NoticePage> {
-  var _index = 0;
-  final _search_condition = ['제목', '작성자', '내용'];
+  var _isSearched = 0;
+  final _searchCondition = ['제목', '작성자', '내용'];
   String? _selectedCondition;
 
   TextEditingController searchController = TextEditingController();
@@ -1087,7 +1098,7 @@ class _NoticePageState extends State<NoticePage> {
   @override
   void initState() {
     super.initState();
-    _selectedCondition = _search_condition[0];
+    _selectedCondition = _searchCondition[0];
   }
 
   @override
@@ -1099,7 +1110,7 @@ class _NoticePageState extends State<NoticePage> {
 
     return Column(
       children: [
-        _pages[_index],
+        _pages[_isSearched],
         _buildButton(
           context,
           width,
@@ -1263,7 +1274,7 @@ class _NoticePageState extends State<NoticePage> {
             onPressed: () {
               if (widget.pk == -1) {
                 _showDialog(context, "로그인 후 작성할 수 있습니다");
-              } else if (widget.name != "운영자") {
+              } else if (widget.name != "운영자") {                       // 일반 게시글과는 다르게 일반 유저가 공지사항을 작성할 수 없음
                 _showDialog(context, "권한이 없습니다.");
               } else {
                 Navigator.push(
@@ -1292,7 +1303,7 @@ class _NoticePageState extends State<NoticePage> {
               child: DropdownButton(
                   underline: SizedBox.shrink(),
                   value: _selectedCondition,
-                  items: _search_condition
+                  items: _searchCondition
                       .map((e) => DropdownMenuItem(
                             value: e,
                             child: Text(e),
@@ -1327,7 +1338,7 @@ class _NoticePageState extends State<NoticePage> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  _index = 1;
+                  _isSearched = 1;
                 });
               },
               child: Container(
@@ -1350,12 +1361,14 @@ class _NoticePageState extends State<NoticePage> {
     );
   }
 
+  // 전체 공지사항 글 불러오는 API 함수 호출
   Future<dynamic> _fetchNotices(context) async {
     dynamic noticeList = await UserAPI(context: context).readNotices();
     print(noticeList);
     return noticeList;
   }
 
+  // 검색된 공지사항 글 불러오는 API 함수 호출
   Future<dynamic> _fetchNoticesSearched(context) async {
     if (_selectedCondition == '제목') {
       dynamic searchedNotice = await UserAPI(context: context)
@@ -1379,6 +1392,7 @@ class _NoticePageState extends State<NoticePage> {
   }
 }
 
+// 다이얼로그 창
 Future<dynamic> _showDialog(BuildContext context, String text) {
   return showDialog(
       context: context,
