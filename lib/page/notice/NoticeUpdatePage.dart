@@ -3,18 +3,17 @@ import 'package:flutter_app/page/notice/NoticeDetailPage.dart';
 import 'package:intl/intl.dart';
 
 import '../../api/user_api.dart';
-import '../../main.dart';
 
 class NoticeUpdatePage extends StatefulWidget {
   NoticeUpdatePage(
       {Key? key,
-        required this.pk,
+      required this.pk,
       required this.noticePk,
       required this.email,
       required this.sex,
       required this.phone,
       required this.title,
-        required this.name,
+      required this.name,
       required this.creator,
       required this.content,
       required this.date})
@@ -83,13 +82,13 @@ class contents extends StatefulWidget {
       required this.width,
       required this.height,
       required this.pk,
-        required this.noticePk,
+      required this.noticePk,
       required this.email,
       required this.sex,
       required this.phone,
       required this.title,
       required this.name,
-        required this.creator,
+      required this.creator,
       required this.content,
       required this.date})
       : super(key: key);
@@ -138,6 +137,8 @@ class _contentsState extends State<contents> {
   }
 
   Widget _title(width, height, date) {
+
+    // String => Date => format
     DateTime dateParse = DateTime.parse(date).toLocal();
     String dateFormat = DateFormat('yyyy년 MM월 dd일 HH:mm').format(dateParse);
 
@@ -234,21 +235,23 @@ class _contentsState extends State<contents> {
       children: [
         ElevatedButton(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
-                foregroundColor: MaterialStateProperty.all(Colors.white)
-            ),
+                backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
+                foregroundColor: MaterialStateProperty.all(Colors.white)),
             onPressed: () async {
               if (titleController.text.trim() == '') {
                 _showDialog(context, '오류', '제목을 입력하세요.');
               } else if (contentController.text.trim() == '') {
                 _showDialog(context, '오류', '내용을 입력하세요.');
               } else {
+
+                // 공지사항 업데이트 API 함수 호출
                 final response = await UserAPI(context: context).updateNotice(
                     pk: pk,
                     title: titleController.text,
                     creator: widget.name,
                     content: contentController.text);
 
+                // Elastic Search 인덱스에도 업데이트 되도록 API를 호출해서 동기화 (검색 필터링 작업시 싱크를 맞추기 위함)
                 final response2 = await UserAPI(context: context)
                     .insertElasticSearchNotice(
                         id: pk,
@@ -257,16 +260,10 @@ class _contentsState extends State<contents> {
                         content: contentController.text,
                         date: widget.date);
 
-                if (response['statusCode'] == 200) {
-                  print(response['statusCode']);
-                } else {
-                  print(response['statusCode']);
-                }
-
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => NoticeDetailPage(
-                          pk: widget.pk,
+                            pk: widget.pk,
                             noticePk: widget.noticePk,
                             email: widget.email,
                             sex: widget.sex,
@@ -287,6 +284,7 @@ class _contentsState extends State<contents> {
   }
 }
 
+// 다이얼로그 창
 Future<dynamic> _showDialog(
     BuildContext context, String title, String content) {
   return showDialog(

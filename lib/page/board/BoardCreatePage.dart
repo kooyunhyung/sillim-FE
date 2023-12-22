@@ -85,6 +85,7 @@ class contents extends StatefulWidget {
 }
 
 class _contentsState extends State<contents> {
+  // 제목과 내용 입력 컨트롤러
   TextEditingController title = TextEditingController();
   TextEditingController content = TextEditingController();
 
@@ -94,10 +95,10 @@ class _contentsState extends State<contents> {
       padding: const EdgeInsets.all(8.0),
       child: ListView(
         children: [
-          _title(widget.width, widget.height),
-          _creator(widget.width, widget.height),
-          _content(widget.width, widget.height),
-          _button()
+          _title(widget.width, widget.height), // 제목
+          _creator(widget.width, widget.height), // 작성자
+          _content(widget.width, widget.height), // 내용
+          _button() // 버튼 (등록)
         ],
       ),
     );
@@ -188,16 +189,16 @@ class _contentsState extends State<contents> {
       children: [
         ElevatedButton(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
-              foregroundColor: MaterialStateProperty.all(Colors.white)
-            ),
+                backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
+                foregroundColor: MaterialStateProperty.all(Colors.white)),
             onPressed: () async {
               //내용이 비어 있으면 다이얼로그 메세지
               if (title.text.trim() == '') {
-                _showDialog(context,'오류' ,'제목을 입력하세요.');
-              } else if (content.text.trim()==''){
-                _showDialog(context,'오류','내용을 입력하세요.');
-              } else{
+                _showDialog(context, '오류', '제목을 입력하세요.');
+              } else if (content.text.trim() == '') {
+                _showDialog(context, '오류', '내용을 입력하세요.');
+              } else {
+                // 게시글 생성 API 호출
                 final response = await UserAPI(context: context).createBoard(
                   title: title.text,
                   creator: widget.name,
@@ -207,28 +208,30 @@ class _contentsState extends State<contents> {
                 int id = response["obj"]["sb_id"];
                 String date = response["obj"]["sb_date"];
 
+                // Elastic Search API 호출
                 final response2 = await UserAPI(context: context)
                     .insertElasticSearchBoard(
-                    id: id,
-                    title: title.text,
-                    creator: widget.name,
-                    content: content.text,
-                    like: 0,
-                    bookmark: false,
-                    date: date);
+                        id: id,
+                        title: title.text,
+                        creator: widget.name,
+                        content: content.text,
+                        like: 0,
+                        bookmark: false,
+                        date: date);
 
+                // 게시글 생성 후 메인화면으로 가기
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => MyHomePage(
-                          pk: widget.pk,
-                          email: widget.email,
-                          name: widget.name,
-                          sex: widget.sex,
-                          phone: widget.phone,
-                        )),
-                        (route) => false);
+                              pk: widget.pk,
+                              email: widget.email,
+                              name: widget.name,
+                              sex: widget.sex,
+                              phone: widget.phone,
+                            )),
+                    (route) => false);
 
-                _showDialog(context,'완료','게시글이 생성 되었습니다.');
+                _showDialog(context, '완료', '게시글이 생성 되었습니다.');
               }
             },
             child: Text('등록')),
@@ -237,19 +240,21 @@ class _contentsState extends State<contents> {
   }
 }
 
-Future<dynamic> _showDialog(BuildContext context, String title, String content) {
+// 다이얼로그 창
+Future<dynamic> _showDialog(
+    BuildContext context, String title, String content) {
   return showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        elevation: 10.0,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(30))),
-        title: Text('$title'),
-        content: Text('$content'),
-        actions: [
-          ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('확인'))
-        ],
-      ));
+            elevation: 10.0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(30))),
+            title: Text('$title'),
+            content: Text('$content'),
+            actions: [
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('확인'))
+            ],
+          ));
 }

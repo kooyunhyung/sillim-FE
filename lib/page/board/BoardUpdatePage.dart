@@ -3,7 +3,6 @@ import 'package:flutter_app/page/board/BoardDetailPage.dart';
 import 'package:intl/intl.dart';
 
 import '../../api/user_api.dart';
-import '../../main.dart';
 
 class BoardUpdatePage extends StatefulWidget {
   BoardUpdatePage(
@@ -123,11 +122,13 @@ class contents extends StatefulWidget {
 }
 
 class _contentsState extends State<contents> {
+  // 수정하기 위한 제목, 내용 글 컨트롤러
   TextEditingController titleController = TextEditingController();
   TextEditingController contentController = TextEditingController();
 
   @override
   void initState() {
+    // 처음 페이지 화면에 기존의 글이 필드창에 뜨도록 컨트롤러 텍스트 초기화
     titleController.text = widget.title;
     contentController.text = widget.content;
     super.initState();
@@ -159,7 +160,9 @@ class _contentsState extends State<contents> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text('$dateFormat'),
-          SizedBox(height: 12,),
+          SizedBox(
+            height: 12,
+          ),
           Row(
             children: [
               Text(
@@ -204,13 +207,16 @@ class _contentsState extends State<contents> {
             width: width * 0.04,
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 5.0),
+              padding: EdgeInsets.symmetric(horizontal: 5.0),
               width: width * 0.7,
               height: height * 0.05,
               decoration: BoxDecoration(
                   border: Border.all(color: Colors.deepPurple, width: 2),
                   borderRadius: BorderRadius.circular(5)),
-              child: Text(creator,style: TextStyle(fontSize: 20),))
+              child: Text(
+                creator,
+                style: TextStyle(fontSize: 20),
+              ))
         ],
       ),
     );
@@ -240,15 +246,13 @@ class _contentsState extends State<contents> {
       children: [
         ElevatedButton(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
-                foregroundColor: MaterialStateProperty.all(Colors.white)
-            ),
+                backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
+                foregroundColor: MaterialStateProperty.all(Colors.white)),
             onPressed: () async {
-
-              if (titleController.text.trim()=='') {
-                _showDialog(context,'오류','제목을 입력하세요.');
-              } else if (contentController.text.trim()=='') {
-                _showDialog(context,'오류','내용을 입력하세요.');
+              if (titleController.text.trim() == '') {
+                _showDialog(context, '오류', '제목을 입력하세요.');
+              } else if (contentController.text.trim() == '') {
+                _showDialog(context, '오류', '내용을 입력하세요.');
               } else {
                 final response = await UserAPI(context: context).updateBoard(
                   pk: boardPk,
@@ -261,39 +265,33 @@ class _contentsState extends State<contents> {
 
                 final response2 = await UserAPI(context: context)
                     .insertElasticSearchBoard(
-                    id: boardPk,
-                    title: titleController.text,
-                    creator: widget.name,
-                    content: contentController.text,
-                    like: widget.like,
-                    bookmark: widget.bookmark,
-                    date: widget.date);
-
-                if (response['statusCode'] == 200) {
-                  print(response['statusCode']);
-                } else {
-                  print(response['statusCode']);
-                }
+                        id: boardPk,
+                        title: titleController.text,
+                        creator: widget.name,
+                        content: contentController.text,
+                        like: widget.like,
+                        bookmark: widget.bookmark,
+                        date: widget.date);
 
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => BoardDetailPage(
-                          pk: widget.pk,
-                          boardPk: widget.boardPk,
-                          email: widget.email,
-                          name: widget.name,
-                          creator: widget.creator,
-                          sex: widget.sex,
-                          phone: widget.phone,
-                          title: widget.title,
-                          content: widget.content,
-                          like: widget.like,
-                          bookmark: widget.bookmark,
-                          date: widget.date,
-                        )),
-                        (route) => false);
+                              pk: widget.pk,
+                              boardPk: widget.boardPk,
+                              email: widget.email,
+                              name: widget.name,
+                              creator: widget.creator,
+                              sex: widget.sex,
+                              phone: widget.phone,
+                              title: widget.title,
+                              content: widget.content,
+                              like: widget.like,
+                              bookmark: widget.bookmark,
+                              date: widget.date,
+                            )),
+                    (route) => false);
 
-                _showDialog(context,'완료','게시글이 수정 되었습니다.');
+                _showDialog(context, '완료', '게시글이 수정 되었습니다.');
               }
             },
             child: Text('등록')),
@@ -302,19 +300,20 @@ class _contentsState extends State<contents> {
   }
 }
 
-Future<dynamic> _showDialog(BuildContext context, String title, String content) {
+Future<dynamic> _showDialog(
+    BuildContext context, String title, String content) {
   return showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        elevation: 10.0,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(30))),
-        title: Text('$title'),
-        content: Text('$content'),
-        actions: [
-          ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('확인'))
-        ],
-      ));
+            elevation: 10.0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(30))),
+            title: Text('$title'),
+            content: Text('$content'),
+            actions: [
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('확인'))
+            ],
+          ));
 }

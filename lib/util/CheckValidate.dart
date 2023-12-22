@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CheckValidate {
+
+  // 이메일 입력 형식 체크
   String? validateEmail(FocusNode focusNode, String value) {
     if (value.isEmpty) {
       focusNode.requestFocus();
@@ -18,6 +20,7 @@ class CheckValidate {
     }
   }
 
+  // 비밀번호 입력 형식 체크
   String? validatePassword(FocusNode focusNode, String value) {
     if (value.isEmpty) {
       focusNode.requestFocus();
@@ -35,6 +38,7 @@ class CheckValidate {
     }
   }
 
+  // 비밀번호 확인 입력 형식 체크
   String? validatePasswordConfirm(
       FocusNode focusNode, String value, String value2) {
     if (value.isEmpty) {
@@ -50,6 +54,7 @@ class CheckValidate {
     }
   }
 
+  // 이름 입력 형식 체크
   String? validateName(FocusNode focusNode, String value) {
     if (value.isEmpty) {
       focusNode.requestFocus();
@@ -66,6 +71,7 @@ class CheckValidate {
     }
   }
 
+  // 전화번호 입력 형식 체크
   String? validatePhone(FocusNode focusNode, String value) {
     if (value.isEmpty) {
       focusNode.requestFocus();

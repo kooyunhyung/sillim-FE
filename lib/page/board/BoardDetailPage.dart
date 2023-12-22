@@ -47,6 +47,7 @@ class _BoardDetailPageState extends State<BoardDetailPage> {
     final height = MediaQuery.of(context).size.height;
 
     return PopScope(
+      // 기기 자체의 뒤로 가기버튼이나 상단 AppBar 의 뒤로가기 버튼을 눌렀을때 변경된 사항이 메임화면에 전달될 수 있는 위젯
       canPop: false,
       onPopInvoked: (bool didPop) {
         if (didPop) {
@@ -151,9 +152,11 @@ class contents extends StatefulWidget {
 }
 
 class _contentsState extends State<contents> {
+  // 좋아요, 즐겨찾기 변형 임시 저장 변수
   var likeTmp;
   var bookmarkTmp;
 
+  // 댓글창 보기 버튼 활성화 유무
   var commentWindow;
 
   TextEditingController commentController = TextEditingController();
@@ -175,7 +178,7 @@ class _contentsState extends State<contents> {
           _title(widget.width, widget.height, widget.title, widget.date),
           _creator(widget.width, widget.height, widget.creator),
           _content(widget.width, widget.height, widget.content),
-          _like_bookmark(widget.width, widget.height),
+          _likeBookmark(widget.width, widget.height),
           _button(widget.boardPk),
           _comment(widget.boardPk)
         ],
@@ -184,6 +187,7 @@ class _contentsState extends State<contents> {
   }
 
   Widget _title(width, height, title, date) {
+    // String 타입의 날짜 변수 Date 타입으로 파싱 후 알맞은 형식으로 Format
     DateTime dateParsing = DateTime.parse(date).toLocal();
     String dateFormat = DateFormat('yyyy년 MM월 dd일 HH:mm').format(dateParsing);
 
@@ -268,7 +272,7 @@ class _contentsState extends State<contents> {
         ));
   }
 
-  Widget _like_bookmark(width, height) {
+  Widget _likeBookmark(width, height) {
     return Container(
         width: width * 0.9,
         height: height * 0.1,
@@ -281,10 +285,13 @@ class _contentsState extends State<contents> {
                 InkWell(
                     onTap: () async {
                       if (widget.pk == -1) {
-                        _showDialog(context, "오류" ,"로그인 후 이용 가능합니다.");
+                        _showDialog(context, "오류", "로그인 후 이용 가능합니다.");
                       } else {
+                        // 임시 변수에 저장
                         int newLikeValue = likeTmp + 1;
+
                         try {
+                          // 좋아요 버튼을 눌렀을 시 API 호출 (클릭 제한 수 무한이라는 점 한계 => 차후 유저별 제한 수 도입 예정)
                           final response =
                               await UserAPI(context: context).updateBoard(
                             pk: widget.boardPk,
@@ -295,6 +302,7 @@ class _contentsState extends State<contents> {
                             bookmark: bookmarkTmp,
                           );
 
+                          // Elastic Search API 호출 (일반 RDBMS에 업데이트, 저장된 정보를 ELastic Search 인덱스에도 동기화 시켜야함)
                           final response2 = await UserAPI(context: context)
                               .insertElasticSearchBoard(
                                   id: widget.boardPk,
@@ -309,7 +317,6 @@ class _contentsState extends State<contents> {
                             setState(() {
                               likeTmp = newLikeValue;
                             });
-                            print(response['statusCode']);
                           } else {
                             print(response['statusCode']);
                           }
@@ -334,13 +341,14 @@ class _contentsState extends State<contents> {
                     ? InkWell(
                         onTap: () async {
                           if (widget.pk == -1) {
-                            _showDialog(context, "오류" ,"로그인 후 이용 가능합니다.");
-                          } else{
+                            _showDialog(context, "오류", "로그인 후 이용 가능합니다.");
+                          } else {
+                            // 임시 변수에 저장
                             bool newBookmarkValue = !bookmarkTmp;
 
                             try {
                               final response =
-                              await UserAPI(context: context).updateBoard(
+                                  await UserAPI(context: context).updateBoard(
                                 pk: widget.boardPk,
                                 title: widget.title,
                                 creator: widget.creator,
@@ -351,19 +359,18 @@ class _contentsState extends State<contents> {
 
                               final response2 = await UserAPI(context: context)
                                   .insertElasticSearchBoard(
-                                  id: widget.boardPk,
-                                  title: widget.title,
-                                  creator: widget.creator,
-                                  content: widget.content,
-                                  like: likeTmp,
-                                  bookmark: newBookmarkValue,
-                                  date: widget.date.toString());
+                                      id: widget.boardPk,
+                                      title: widget.title,
+                                      creator: widget.creator,
+                                      content: widget.content,
+                                      like: likeTmp,
+                                      bookmark: newBookmarkValue,
+                                      date: widget.date.toString());
 
                               if (response['statusCode'] == 200) {
                                 setState(() {
                                   bookmarkTmp = newBookmarkValue;
                                 });
-                                print(response['statusCode']);
                               } else {
                                 print(response['statusCode']);
                               }
@@ -381,13 +388,14 @@ class _contentsState extends State<contents> {
                     : InkWell(
                         onTap: () async {
                           if (widget.pk == -1) {
-                            _showDialog(context, "오류" ,"로그인 후 이용 가능합니다.");
+                            _showDialog(context, "오류", "로그인 후 이용 가능합니다.");
                           } else {
+                            // 임시 변수에 저장
                             bool newBookmarkValue = !bookmarkTmp;
 
                             try {
                               final response =
-                              await UserAPI(context: context).updateBoard(
+                                  await UserAPI(context: context).updateBoard(
                                 pk: widget.boardPk,
                                 title: widget.title,
                                 creator: widget.creator,
@@ -398,20 +406,18 @@ class _contentsState extends State<contents> {
 
                               final response2 = await UserAPI(context: context)
                                   .insertElasticSearchBoard(
-                                  id: widget.boardPk,
-                                  title: widget.title,
-                                  creator: widget.creator,
-                                  content: widget.content,
-                                  like: likeTmp,
-                                  bookmark: newBookmarkValue,
-                                  date: widget.date.toString());
+                                      id: widget.boardPk,
+                                      title: widget.title,
+                                      creator: widget.creator,
+                                      content: widget.content,
+                                      like: likeTmp,
+                                      bookmark: newBookmarkValue,
+                                      date: widget.date.toString());
 
                               if (response['statusCode'] == 200) {
                                 setState(() {
                                   bookmarkTmp = newBookmarkValue;
                                 });
-                                print(response['statusCode']);
-                                print(response);
                               } else {
                                 print(response['statusCode']);
                               }
@@ -438,9 +444,9 @@ class _contentsState extends State<contents> {
             children: [
               ElevatedButton(
                   style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
-                      foregroundColor: MaterialStateProperty.all(Colors.white)
-                  ),
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.deepPurple),
+                      foregroundColor: MaterialStateProperty.all(Colors.white)),
                   onPressed: () {
                     Navigator.push(
                         context,
@@ -462,21 +468,18 @@ class _contentsState extends State<contents> {
                   child: Text('수정')),
               ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.redAccent),
-                      foregroundColor: MaterialStateProperty.all(Colors.white)
-                  ),
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.redAccent),
+                      foregroundColor: MaterialStateProperty.all(Colors.white)),
                   onPressed: () async {
                     try {
+                      // 삭제 API 호출
                       final response = await UserAPI(context: context)
                           .deleteBoard(pk: boardPk);
+
+                      // Elastic Search 인덱스에서도 해당 도큐먼트 삭제
                       UserAPI(context: context)
                           .deleteElasticSearchBoard(pk: boardPk);
-
-                      if (response['statusCode'] == 200) {
-                        print(response['statusCode']);
-                      } else {
-                        print(response['statusCode']);
-                      }
 
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(
@@ -503,13 +506,13 @@ class _contentsState extends State<contents> {
   }
 
   Widget _comment(boardPk) {
-    return commentWindow
+    return commentWindow // 해당 임시 변수의 상태에 따라 댓글 목록을 볼 수 있는 여부 결정
         ? Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: GestureDetector(
               onTap: () {
                 setState(() {
-                  commentWindow = !commentWindow;
+                  commentWindow = !commentWindow; // 클릭시 반댓값으로 설정
                 });
               },
               child: Container(
@@ -557,6 +560,7 @@ class _contentsState extends State<contents> {
                 ),
               ),
               FutureBuilder(
+                // 댓글 목록 불러오는 API 호출 후 받은 정보 리스트로 출력
                 future: _fetchBoardComments(context, boardPk),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData == false) {
@@ -586,6 +590,7 @@ class _contentsState extends State<contents> {
                                   children: [
                                     Text(
                                       '${DateFormat('yyyy년 MM월 dd일 HH:mm').format(DateTime.parse(snapshot.data[index]['sbc_date']).toLocal())}',
+                                      // String => Date => Format
                                       style: TextStyle(
                                           fontSize: 11, color: Colors.grey),
                                     ),
@@ -627,10 +632,11 @@ class _contentsState extends State<contents> {
                             ElevatedButton(
                                 onPressed: () async {
                                   if (widget.pk == -1) {
-                                    _showDialog(context,"오류" ,"로그인 후 이용 가능합니다.");
+                                    _showDialog(
+                                        context, "오류", "로그인 후 이용 가능합니다.");
                                   } else if (commentController.text.trim() ==
                                       '') {
-                                    _showDialog(context,"오류" ,'댓글 내용을 입력하세요.');
+                                    _showDialog(context, "오류", '댓글 내용을 입력하세요.');
                                   } else {
                                     await UserAPI(context: context)
                                         .createBoardComment(
@@ -643,7 +649,8 @@ class _contentsState extends State<contents> {
                                             boardLike: widget.like,
                                             boardBookmark: widget.bookmark);
 
-                                    setState(() {});
+                                    setState(
+                                        () {}); // 댓글 입력후 화면에 바로 띄워질수 있게 페이지 재렌더링 하는 역할을 함
                                   }
                                 },
                                 child: Text('댓글등록'))
@@ -658,27 +665,29 @@ class _contentsState extends State<contents> {
           );
   }
 
+  // 해당 게시물에 달린 댓글 목록을 불러오는 API 함수 호출
   Future<dynamic> _fetchBoardComments(context, boardPk) async {
     dynamic boardCommentList =
         await UserAPI(context: context).readBoardComments(pk: boardPk);
-    print(boardCommentList);
     return boardCommentList;
   }
 
-  Future<dynamic> _showDialog(BuildContext context, String title, String content) {
+  // 다이얼로그 창
+  Future<dynamic> _showDialog(
+      BuildContext context, String title, String content) {
     return showDialog(
         context: context,
         builder: (BuildContext context) => AlertDialog(
-          elevation: 10.0,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(30))),
-          title: Text('$title'),
-          content: Text('$content'),
-          actions: [
-            ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('확인'))
-          ],
-        ));
+              elevation: 10.0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30))),
+              title: Text('$title'),
+              content: Text('$content'),
+              actions: [
+                ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('확인'))
+              ],
+            ));
   }
 }

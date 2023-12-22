@@ -10,6 +10,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
+  // 이메일과 비밀번호 입력 컨트롤러
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -23,6 +25,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  // 로그인 실패시 뜨는 다이얼로그 창
   Future<dynamic> _showDialog(BuildContext context) {
     return showDialog(
         context: context,
@@ -72,10 +75,13 @@ class _LoginPageState extends State<LoginPage> {
               ),
               ElevatedButton(
                   onPressed: () async {
+
+                    // 유저 로그인 API 함수 호출
                     dynamic response = await UserAPI(context: context)
                         .userLogin(
                             email: emailController.text,
                             password: passwordController.text);
+
                     if (response["statusCode"] == 200) {
                       int userId = response['obj']['su_id'];
                       String userEmail = response['obj']['su_email'];
@@ -83,6 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                       String userSex = response['obj']['su_sex'];
                       String userPhone = response['obj']['su_phone'];
 
+                      // 로그인 성공시 유저 정보 DB에서 가져와 페이지 파라미터로 넘겨 메인 페이지로 이동
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (context) => MyHomePage(

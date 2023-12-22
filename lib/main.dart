@@ -716,7 +716,6 @@ class _BoardPageState extends State<BoardPage> {
                     onChanged: (value) {
                       setState(() {
                         _selectedCondition = value!;
-                        print(_selectedCondition);
                       });
                     }),
               ),
@@ -770,7 +769,6 @@ class _BoardPageState extends State<BoardPage> {
   // 전체 게시글 불러오는 API 호출
   Future<dynamic> _fetchBoards(context) async {
     dynamic boardList = await UserAPI(context: context).readBoards();
-    print(boardList);
     return boardList;
   }
 
@@ -785,13 +783,11 @@ class _BoardPageState extends State<BoardPage> {
       dynamic searchedBoard = await UserAPI(context: context)
           .readElasticSearchBoardsByCreator(searchText: searchController.text);
       dynamic searchedData = searchedBoard["hits"]["hits"];
-      print(searchedData);
       return searchedData;
     } else {
       dynamic searchedBoard = await UserAPI(context: context)
           .readElasticSearchBoardsByContent(searchText: searchController.text);
       dynamic searchedData = searchedBoard["hits"]["hits"];
-      print(searchedData);
       return searchedData;
     }
   }
@@ -928,7 +924,6 @@ class _PopularBoardPageState extends State<PopularBoardPage> {
 
   Future<dynamic> _fetchPopularBoards(context) async {
     dynamic boardList = await UserAPI(context: context).readPopularBoards();
-    print(boardList);
     return boardList;
   }
 }
@@ -1062,7 +1057,6 @@ class _BookMarkedPageState extends State<BookMarkedPage> {
 
   Future<dynamic> _fetchBookmarkBoards(context) async {
     dynamic boardList = await UserAPI(context: context).readBookmarkedBoards();
-    print(boardList);
     return boardList;
   }
 }
@@ -1364,7 +1358,6 @@ class _NoticePageState extends State<NoticePage> {
   // 전체 공지사항 글 불러오는 API 함수 호출
   Future<dynamic> _fetchNotices(context) async {
     dynamic noticeList = await UserAPI(context: context).readNotices();
-    print(noticeList);
     return noticeList;
   }
 
@@ -1374,19 +1367,16 @@ class _NoticePageState extends State<NoticePage> {
       dynamic searchedNotice = await UserAPI(context: context)
           .readElasticSearchNoticesByTitle(searchText: searchController.text);
       dynamic searchedData = searchedNotice["hits"]["hits"];
-      print(searchedData);
       return searchedData;
     } else if (_selectedCondition == '작성자') {
       dynamic searchedNotice = await UserAPI(context: context)
           .readElasticSearchNoticesByCreator(searchText: searchController.text);
       dynamic searchedData = searchedNotice["hits"]["hits"];
-      print(searchedData);
       return searchedData;
     } else {
       dynamic searchedNotice = await UserAPI(context: context)
           .readElasticSearchNoticesByContent(searchText: searchController.text);
       dynamic searchedData = searchedNotice["hits"]["hits"];
-      print(searchedData);
       return searchedData;
     }
   }

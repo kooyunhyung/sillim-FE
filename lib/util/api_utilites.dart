@@ -37,12 +37,13 @@ String getQueryString(Map params,
 String createUri(String path, Map<String, dynamic> param) {
   final params = param != null ? getQueryString(param) : '';
 
-  //
+  // 8080 port 통해 RDBMS와 통신을 맺어야 하는 경우
   if (path.substring(0,4)=='sill' || path.substring(0,4)=='apis'){
-    print('${host.host}/$path?${params.substring(min(params.length, 1))}');
+    //print('${host.host}/$path?${params.substring(min(params.length, 1))}');
     return '${host.host}/$path?${params.substring(min(params.length, 1))}';
   }
 
-  print('${host2.host}/$path?${params.substring(min(params.length, 1))}');
+  // 9200 port 통해 Elastic Search와 통신을 맺어야 하는 경우
+  //print('${host2.host}/$path?${params.substring(min(params.length, 1))}');
   return '${host2.host}/$path?${params.substring(min(params.length, 1))}';
 }

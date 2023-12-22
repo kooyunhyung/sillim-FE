@@ -8,7 +8,7 @@ import '../../main.dart';
 class NoticeDetailPage extends StatefulWidget {
   NoticeDetailPage(
       {Key? key,
-        required this.pk,
+      required this.pk,
       required this.noticePk,
       required this.email,
       required this.sex,
@@ -51,12 +51,12 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
             context,
             MaterialPageRoute(
                 builder: (context) => MyHomePage(
-                  pk: widget.pk,
-                  email: widget.email,
-                  name: widget.name,
-                  sex: widget.sex,
-                  phone: widget.phone,
-                )));
+                      pk: widget.pk,
+                      email: widget.email,
+                      name: widget.name,
+                      sex: widget.sex,
+                      phone: widget.phone,
+                    )));
       },
       child: Scaffold(
         appBar: PreferredSize(
@@ -81,7 +81,8 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
             ),
             title: Text(
               '공지사항',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
             ),
             centerTitle: true,
           ),
@@ -90,7 +91,7 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
             width: width,
             height: height,
             title: widget.title,
-            pk:widget.pk,
+            pk: widget.pk,
             noticePk: widget.noticePk,
             email: widget.email,
             sex: widget.sex,
@@ -110,7 +111,7 @@ class contents extends StatefulWidget {
       required this.width,
       required this.height,
       required this.pk,
-        required this.noticePk,
+      required this.noticePk,
       required this.email,
       required this.sex,
       required this.phone,
@@ -155,6 +156,8 @@ class _contentsState extends State<contents> {
   }
 
   Widget _title(width, height, title, date) {
+
+    // String => Date => format
     DateTime dateParsing = DateTime.parse(date).toLocal();
     String dateFormat = DateFormat('yyyy년 MM월 dd일 HH:mm').format(dateParsing);
 
@@ -237,15 +240,15 @@ class _contentsState extends State<contents> {
             children: [
               ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
-                      foregroundColor: MaterialStateProperty.all(Colors.white)
-                  ),
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.deepPurple),
+                      foregroundColor: MaterialStateProperty.all(Colors.white)),
                   onPressed: () {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => NoticeUpdatePage(
-                              pk: widget.pk,
+                                  pk: widget.pk,
                                   noticePk: noticePk,
                                   email: widget.email,
                                   sex: widget.sex,
@@ -260,20 +263,18 @@ class _contentsState extends State<contents> {
                   child: Text('수정')),
               ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.redAccent),
-                      foregroundColor: MaterialStateProperty.all(Colors.white)
-                  ),
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.redAccent),
+                      foregroundColor: MaterialStateProperty.all(Colors.white)),
                   onPressed: () async {
-                    final response =
-                        await UserAPI(context: context).deleteNotice(pk: noticePk);
 
-                    UserAPI(context: context).deleteElasticSearchNotice(pk: noticePk);
+                    // 공지사항 삭제 API 호출
+                    final response = await UserAPI(context: context)
+                        .deleteNotice(pk: noticePk);
 
-                    if (response['statusCode'] == 200) {
-                      print(response['statusCode']);
-                    } else {
-                      print(response['statusCode']);
-                    }
+                    // Elastic Search 에서도 삭제되도록 동기화
+                    UserAPI(context: context)
+                        .deleteElasticSearchNotice(pk: noticePk);
 
                     Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(
@@ -288,27 +289,27 @@ class _contentsState extends State<contents> {
 
                     _showDialog(context, "완료", "공지사항이 삭제 되었습니다.");
                   },
-
                   child: Text('삭제')),
             ],
           )
         : Container();
   }
 
-  Future<dynamic> _showDialog(BuildContext context, String title, String content) {
+  Future<dynamic> _showDialog(
+      BuildContext context, String title, String content) {
     return showDialog(
         context: context,
         builder: (BuildContext context) => AlertDialog(
-          elevation: 10.0,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(30))),
-          title: Text('$title'),
-          content: Text('$content'),
-          actions: [
-            ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('확인'))
-          ],
-        ));
+              elevation: 10.0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30))),
+              title: Text('$title'),
+              content: Text('$content'),
+              actions: [
+                ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('확인'))
+              ],
+            ));
   }
 }

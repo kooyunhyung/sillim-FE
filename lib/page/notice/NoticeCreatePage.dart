@@ -85,6 +85,7 @@ class contents extends StatefulWidget {
 }
 
 class _contentsState extends State<contents> {
+  // 공지 글 생성을 위한 제목, 내용 컨트롤러
   TextEditingController title = TextEditingController();
   TextEditingController content = TextEditingController();
 
@@ -188,9 +189,8 @@ class _contentsState extends State<contents> {
       children: [
         ElevatedButton(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
-                foregroundColor: MaterialStateProperty.all(Colors.white)
-            ),
+                backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
+                foregroundColor: MaterialStateProperty.all(Colors.white)),
             onPressed: () async {
               //내용이 비어 있으면 다이얼로그 메세지
               if (title.text.trim() == '') {
@@ -198,6 +198,7 @@ class _contentsState extends State<contents> {
               } else if (content.text.trim() == '') {
                 _showDialog(context, '오류', '내용을 입력하세요.');
               } else {
+                // 공지 생성 API 함수 호출
                 final response = await UserAPI(context: context).createNotice(
                   title: title.text,
                   creator: widget.name,
@@ -207,6 +208,7 @@ class _contentsState extends State<contents> {
                 int id = response["obj"]["sn_id"];
                 String date = response["obj"]["sn_date"];
 
+                // Elastic Search 인덱스에도 공지 생성 하도록 API 함수 호출 (검색 필터링 시 싱크를 맞출 수 있음)
                 final response2 = await UserAPI(context: context)
                     .insertElasticSearchNotice(
                         id: id,
@@ -235,6 +237,7 @@ class _contentsState extends State<contents> {
   }
 }
 
+// 다이얼로그 창
 Future<dynamic> _showDialog(
     BuildContext context, String title, String content) {
   return showDialog(
